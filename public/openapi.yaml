@@ -1,0 +1,213 @@
+openapi: 3.0.0
+info:
+  title: TestShop API
+  description: API documentation for the TestShop training application. This API allows for product retrieval, user authentication, and order processing.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+paths:
+  /products:
+    get:
+      summary: Get all products
+      description: Retrieve a paginated list of products. Supports filtering by query string and category.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 9
+          description: Number of items per page
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Search term to filter products by name
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filter products by category (Electronics, Accessories, Office, Home)
+      responses:
+        '200':
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProducts'
+
+  /products/{id}:
+    get:
+      summary: Get a product by ID
+      description: Retrieve details of a single product.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Numeric ID of the product
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+  /login:
+    post:
+      summary: User login
+      description: Authenticate a user to get an access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: consultant
+                password:
+                  type: string
+                  example: pwd
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    example: "mock-jwt-token-123456"
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+        '401':
+          description: Invalid credentials
+        '500':
+          description: Server error
+
+  /checkout:
+    post:
+      summary: Place an order
+      description: Process a cart checkout with shipping details. Simulates order placement.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cart:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CartItem'
+                shippingDetails:
+                  $ref: '#/components/schemas/ShippingDetails'
+      responses:
+        '200':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      orderId:
+                        type: string
+                        example: "ORDER-1634567890"
+                  message:
+                    type: string
+        '400':
+          description: Invalid request or validation error (e.g. empty cart, invalid address)
+        '500':
+          description: Internal Server Error (e.g. caused by "Buggy" product ID 999)
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        image:
+          type: string
+        category:
+          type: string
+
+    PaginatedProducts:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+
+    CartItem:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          properties:
+            quantity:
+              type: integer
+
+    ShippingDetails:
+      type: object
+      required:
+        - fullName
+        - address
+        - city
+        - zipCode
+        - email
+      properties:
+        fullName:
+          type: string
+          minLength: 3
+        address:
+          type: string
+          minLength: 5
+        city:
+          type: string
+        zipCode:
+          type: string
+          pattern: '^\d{5}$'
+        email:
+          type: string
+          format: email
