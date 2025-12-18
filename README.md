@@ -87,6 +87,15 @@ Wir arbeiten **nicht** direkt auf dem Haupt-Pfad ("main"), sondern jeder erstell
 
 ---
 
+---
+
+## 📚 Hintergrundwissen (QA Masterclass)
+
+Möchtest du verstehen, **warum** wir das so machen? Wie passt diese Aufgabe in die moderne "Agile" Welt? Was ist die Testpyramide und was bedeutet "Shift Left"?
+👉 **Lies dazu unbedingt das [QA Handbuch (QA_HANDBOOK.md)](./QA_HANDBOOK.md).**
+
+---
+
 ## 🎯 Deine Aufgabe: Test Consultant
 
 Stelle dir vor, der Product Owner kommt zu dir mit folgendem Anliegen:
