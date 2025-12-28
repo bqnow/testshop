@@ -49,7 +49,7 @@ Führe nacheinander aus:
 
 2.  **In den Ordner gehen & Installieren:**
     ```bash
-    cd bqnow-testshop
+    cd testshop
     npm install
     ```
 
