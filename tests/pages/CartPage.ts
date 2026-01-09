@@ -10,7 +10,6 @@ export class CartPage extends BasePage {
         super(page);
         this.proceedToCheckoutButton = page.getByTestId('checkout-init-btn');
         this.submitOrderButton = page.getByTestId('submit-order-btn');
-        // Looking for "Order Confirmed!" h1
         this.orderSuccessMessage = page.getByRole('heading', { name: 'Order Confirmed!' });
     }
 
@@ -49,14 +48,17 @@ export class CartPage extends BasePage {
     }
 
     async submitOrderExpectingError(expectedMessageSubstring: string) {
-        // Setup the event listener before the action
         const dialogPromise = this.page.waitForEvent('dialog');
-
         await this.submitOrderButton.click();
-
         const dialog = await dialogPromise;
         expect(dialog.message()).toContain(expectedMessageSubstring);
         await dialog.accept();
+    }
+
+    async expectFieldToBeInvalid(testId: string) {
+        const locator = this.page.getByTestId(testId);
+        const isValid = await locator.evaluate((node) => (node as HTMLInputElement).checkValidity());
+        expect(isValid).toBe(false);
     }
 
     async verifyOrderSuccess() {

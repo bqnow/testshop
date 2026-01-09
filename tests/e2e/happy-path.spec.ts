@@ -4,7 +4,6 @@ import { faker } from '@faker-js/faker';
 
 test.describe('E2E Checkout Flow', () => {
 
-    // We use our custom 'test' which has fixtures injected automatically.
     // notice 'loggedInPage' fixture -> it runs the login logic BEFORE the test body starts!
     test('Standard Customer Journey (Happy Path)', async ({
         shopPage,
@@ -36,7 +35,7 @@ test.describe('E2E Checkout Flow', () => {
                 fullName: faker.person.fullName(),
                 address: faker.location.streetAddress(),
                 city: faker.location.city(),
-                zip: faker.location.zipCode('#####'), // Ensure 5 digits
+                zip: faker.location.zipCode('#####'),
                 email: faker.internet.email()
             };
 

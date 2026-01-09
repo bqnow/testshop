@@ -2,7 +2,7 @@
 
 ## Einleitung
 Willkommen im Showcase-Branch `showcase/playwright`.
-Dieses Projekt demonstriert eine Referenzarchitektur für skalierbare, wartbare und robuste E2E-Tests. Ziel ist es, Best Practices zu vermitteln, die über einfaches "Skripting" hinausgehen und "Enterprise-Ready" sind.
+Dieses Projekt demonstriert eine Referenzarchitektur für skalierbare, wartbare und robuste E2E-Tests.
 
 ---
 
@@ -11,19 +11,20 @@ Dieses Projekt demonstriert eine Referenzarchitektur für skalierbare, wartbare 
 Playwright wurde als Test-Runner gewählt, es hat entscheidende Vorteile gegenüber älteren Tools (wie Selenium):
 *   **Auto-Waiting:** Playwright wartet automatisch, bis Elemente klickbar sind. Instabile `sleep()` Befehle entfallen.
 *   **Browser-Engine:** Es steuert Chromium, Firefox und WebKit nativ, was extrem schnelle Ausführungszeiten ermöglicht.
-*   **Trace Viewer:** Bietet im Fehlerfall eine vollständige Aufzeichnung (Video, DOM, Netzwerk) zur Analyse.
+*   **Trace Viewer:** Bietet im Fehlerfall eine vollständige Aufzeichnung (Video, DOM, Netzwerk) zur Analyse. (Headed lokal, Headless auf CI).
+
+### Sichtbarkeit (Headed vs. Headless)
+Lokal öffnen sich die Browser-Fenster, damit du dem Test zuschauen kannst. In der CI-Pipeline läuft alles unsichtbar ("headless"), um Ressourcen zu sparen und weil es dort keinen Bildschirm gibt. Das wird in der Config dynamisch gesteuert (siehe `headless: process.env.CI ? true : false`).
 
 ### Automatisierter WebServer
-Die `playwright.config.ts` ist so konfiguriert, dass sie den lokalen Serverstatus prüft:
+Die `tests/playwright.config.ts` ist so konfiguriert, dass sie den lokalen Serverstatus prüft:
 *   Wird lokal getestet, startet Playwright automatisch die App (`npm run dev`), falls sie nicht läuft.
-*   Wird gegen Staging/Prod getestet, wird dieser Schritt übersprungen.
+*   Wird gegen Remote-Umgebungen (QA, Staging) getestet, wird dieser Schritt übersprungen.
 Dies reduziert manuelle Schritte.
 
 ---
 
 ## 2. Architektur & Wartbarkeit
-
-Ein robustes Framework steht und fällt mit seiner Struktur. Spaghetti-Code in Tests führt zu hohen Wartungskosten.
 
 ### 2.1 Das Page Object Model (POM)
 Das "Page Object Model" ist ein Design-Pattern, das hilft, Tests lesbar und wartbar zu halten.
@@ -48,20 +49,30 @@ Die benötigten Pages werden dem Test einfach als Argument übergeben. Das reduz
 
 Für den professionellen Einsatz in großen Teams sind folgende Aspekte implementiert:
 
-### 3.1 Environments (Staging, QA, Prod)
+### 3.1 Environments (Lokal, QA, Staging)
 Tests dürfen keine hardcodierten URLs enthalten (`http://localhost`).
-Wir nutzen Umgebungsvariablen (`BASE_URL`), die über NPM Scripts gesteuert werden. In der `package.json` finden sich Shortcuts:
-*   `npm run test:e2e` (Lokal)
-*   `npm run test:qa` (QA Umgebung)
-*   `npm run test:prod` (Live Umgebung)
+Wir nutzen Umgebungsvariablen (`BASE_URL`), die über NPM Scripts gesteuert werden.
+Die Konfigurationsdateien hierfür liegen in `tests/config/` (z.B. `.env.qa`).
+
+In der `package.json` finden sich Shortcuts:
+*   `npm run test:e2e` (Lokal - nutzt `tests/config/.env.local`)
+*   `npm run test:qa` (QA Umgebung - nutzt `tests/config/.env.qa`)
+*   `npm run test:staging` (Staging Umgebung - nutzt `tests/config/.env.staging`)
 
 ### 3.2 Parallelisierung (Performance)
 Playwright führt Tests standardmäßig parallel aus (Default: lokal Anzahl der CPU-Kerne, auf CI konfigurierbar).
 **Sicherheit:** Jeder Test läuft in einem isolierten `BrowserContext` (wie ein eigenes Inkognito-Fenster). Lokale Daten (LocalStorage, Cookies) werden nicht geteilt. Tests können sich somit nicht gegenseitig beeinflussen, was "Flaky Tests" verhindert.
 
 ### 3.3 Testdaten & Sicherheit
-*   **Secrets:** Passwörter liegen niemals im Code, sondern in `.env` Dateien (lokal) oder Secrets-Managern (CI).
+*   **Secrets:** Passwörter liegen niemals im Code. Sie werden in `tests/config/test-config.ts` zentral verwaltet und laden sich aus der passenden `.env` Datei im Ordner `tests/config/` (je nach `TEST_ENV` Variable).
+*   **Agnostische Tests:** Die Credentials sind konfigurierbar, sodass der selbe Testcode gegen QA und Staging laufen kann.
 *   **Dynamische Daten:** Um Caching-Effekte zu umgehen und Validierungen zu stressen, werden Nutzerdaten (Name, Email) bei jedem Lauf mittels `@faker-js/faker` zufällig neu generiert. Dies erhöht die Testabdeckung signifikant.
+
+### 3.4 Data-Driven Testing
+Anstatt Tests für verschiedene Eingaben (z.B. ungültige Email, falsche PLZ) zu kopieren, trennen wir Daten von Logik.
+Wir definieren ein Array von Testfällen und iterieren darüber (`for..of`).
+Playwright generiert daraus zur Laufzeit dynamische Tests.
+👉 **Referenz:** Siehe `tests/e2e/checkout-validation.spec.ts`.
 
 ---
 

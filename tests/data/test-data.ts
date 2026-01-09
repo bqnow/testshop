@@ -1,10 +1,3 @@
-export const TEST_USERS = {
-    standard: {
-        username: process.env.TEST_USER_NAME || 'consultant',
-        password: process.env.TEST_USER_PASSWORD || 'pwd'
-    }
-};
-
 export const PRODUCTS = {
     laptop: {
         id: '1',
@@ -12,6 +5,7 @@ export const PRODUCTS = {
         category: 'Electronics'
     },
     buggyValues: {
-        id: '999'
+        id: '999',
+        name: 'Glitchy Gadget'
     }
 };

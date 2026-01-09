@@ -7,10 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "playwright test",
-    "test:staging": "BASE_URL=https://staging.testshop.com playwright test",
-    "test:qa": "BASE_URL=https://qa.testshop.com playwright test",
-    "test:prod": "BASE_URL=https://testshop.com playwright test"
+    "test:e2e": "playwright test --config tests/playwright.config.ts",
+    "test:qa": "TEST_ENV=qa BASE_URL=https://qa.testshop.com playwright test --config tests/playwright.config.ts",
+    "test:staging": "TEST_ENV=staging BASE_URL=https://staging.testshop.com playwright test --config tests/playwright.config.ts",
+    "test:prod": "TEST_ENV=prod BASE_URL=https://testshop.com playwright test --config tests/playwright.config.ts"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

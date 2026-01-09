@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker';
 
 test.describe('E2E Edge Cases & Error Handling', () => {
 
-    test('Checkout fails gracefully when purchasing buggy product (ID 999)', async ({
+    test('Checkout fails when purchasing buggy product (ID 999)', async ({
         shopPage,
         cartPage,
         loggedInPage
@@ -12,7 +12,7 @@ test.describe('E2E Edge Cases & Error Handling', () => {
 
         // 1. Add Buggy Product to Cart
         await test.step('Add buggy product', async () => {
-            await shopPage.searchProduct('Glitchy');
+            await shopPage.searchProduct(PRODUCTS.buggyValues.name);
             await shopPage.addProductDirectlyToCart(PRODUCTS.buggyValues.id);
         });
 
@@ -37,12 +37,10 @@ test.describe('E2E Edge Cases & Error Handling', () => {
 
         // 3. Verify App Stability
         await test.step('Verify app is still usable', async () => {
-            // Should still be on cart page (or wherever the logic keeps us)
             await expect(cartPage.submitOrderButton).toBeVisible();
 
-            // Or verify we can navigate back home
             await shopPage.goto();
-            await expect(shopPage.page).toHaveURL(/\/$/); // Ends with /
+            await expect(shopPage.page).toHaveURL(/\/$/);
         });
     });
 });

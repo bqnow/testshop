@@ -3,7 +3,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { ShopPage } from '../pages/ShopPage';
 import { ProductDetailPage } from '../pages/ProductDetailPage';
 import { CartPage } from '../pages/CartPage';
-import { TEST_USERS } from '../data/test-data';
+import { TEST_CONFIG } from '../config/test-config';
 
 // Declare the types of your fixtures.
 type MyFixtures = {
@@ -11,10 +11,10 @@ type MyFixtures = {
     shopPage: ShopPage;
     productDetailPage: ProductDetailPage;
     cartPage: CartPage;
-    loggedInPage: void; // Worker-scoped authentication could be done, here we do test-scoped
+    loggedInPage: void;
 };
 
-// Extend base test by providing "myPage" and "settingsPage".
+// Extend base test
 // This new "test" can be used in multiple test files, and each of them will get the fixtures.
 export const test = base.extend<MyFixtures>({
     loginPage: async ({ page }, use) => {
@@ -36,7 +36,8 @@ export const test = base.extend<MyFixtures>({
     // A fixture that provides a pre-logged-in state
     loggedInPage: async ({ loginPage }, use) => {
         await loginPage.goto();
-        await loginPage.login(TEST_USERS.standard.username, TEST_USERS.standard.password);
+        // Use credentials from loaded environment config
+        await loginPage.login(TEST_CONFIG.auth.username, TEST_CONFIG.auth.password);
         await use();
     },
 });
