@@ -6,14 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "next": "16.0.10",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.2.0",
+    "@playwright/test": "^1.57.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
