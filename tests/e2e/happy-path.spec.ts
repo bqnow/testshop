@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/base-test';
+import { test } from '../fixtures/base-test';
 import { PRODUCTS } from '../data/test-data';
 import { faker } from '@faker-js/faker';
 
@@ -31,7 +31,7 @@ test.describe('E2E Checkout Flow', () => {
 
             await cartPage.proceedToCheckout();
 
-            // Generate valid fake data for every run! 🎲
+            // Generate valid fake data for every run! 
             const fakeUser = {
                 fullName: faker.person.fullName(),
                 address: faker.location.streetAddress(),
