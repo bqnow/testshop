@@ -1,174 +1,81 @@
-# 🎭 Playwright Framework Dokumentation
+# Playwright Framework Dokumentation
 
-Willkommen im **Showcase-Branch für Playwright**.
-Dieser Branch (`showcase/playwright`) demonstriert eine Referenzimplementierung für moderne Testautomatisierung.
-
-Dieses Dokument erläutert die Architektur-Entscheidungen und Patterns, die verwendet wurden, um eine skalierbare und wartbare Testlösung aufzubauen.
-
----
-
-## 🏗️ Stufe 1: Der Technologie-Stack
-
-Die Wahl fiel bewusst auf einen modernen Stack:
-
-1.  **Playwright (vs. Selenium/Cypress):**
-    *   **Performance:** Parallele Ausführung und geringer Overhead.
-    *   **Stabilität:** "Auto-Waiting"-Mechanismus reduziert Flakiness (keine manuellen `sleeps` notwendig).
-    *   **Analyse:** Integrierter **Trace Viewer** für detaillierte Fehleranalyse.
-
-2.  **TypeScript:**
-    *   **Typsicherheit:** Tests profitieren stark von Typisierung, da Fehler (z.B. falsche Parameter) bereits zur Entwicklungszeit erkannt werden.
+## Einleitung
+Willkommen im Showcase-Branch `showcase/playwright`.
+Dieses Projekt demonstriert eine Referenzarchitektur für skalierbare, wartbare und robuste E2E-Tests. Ziel ist es, Best Practices zu vermitteln, die über einfaches "Skripting" hinausgehen und "Enterprise-Ready" sind.
 
 ---
 
-## 🛠️ Stufe 1.5: Automatisierter WebServer
+## 1. Fundament & Setup
 
-Für die Ausführung der Tests ist kein manueller Start der Anwendung notwendig.
+Playwright wurde als Test-Runner gewählt, es hat entscheidende Vorteile gegenüber älteren Tools (wie Selenium):
+*   **Auto-Waiting:** Playwright wartet automatisch, bis Elemente klickbar sind. Instabile `sleep()` Befehle entfallen.
+*   **Browser-Engine:** Es steuert Chromium, Firefox und WebKit nativ, was extrem schnelle Ausführungszeiten ermöglicht.
+*   **Trace Viewer:** Bietet im Fehlerfall eine vollständige Aufzeichnung (Video, DOM, Netzwerk) zur Analyse.
 
-In der `playwright.config.ts` ist der WebServer konfiguriert:
-```typescript
-webServer: {
-  command: 'npm run dev',
-  url: 'http://localhost:3000',
-  reuseExistingServer: !process.env.CI,
-},
-```
-**Funktionsweise:**
-Playwright prüft, ob der Port 3000 aktiv ist. Falls nicht, wird die Anwendung automatisch gestartet, die Tests ausgeführt und der Server danach beendet. Dies vereinfacht den Workflow (DX - Developer Experience) erheblich.
+### Automatisierter WebServer
+Die `playwright.config.ts` ist so konfiguriert, dass sie den lokalen Serverstatus prüft:
+*   Wird lokal getestet, startet Playwright automatisch die App (`npm run dev`), falls sie nicht läuft.
+*   Wird gegen Staging/Prod getestet, wird dieser Schritt übersprungen.
+Dies reduziert manuelle Schritte.
 
 ---
 
-## 🧱 Stufe 2: Architektur (Page Object Model)
+## 2. Architektur & Wartbarkeit
 
-**Problemstellung:**
-Unstrukturierte Testskripte mischen Testlogik mit technischen Selektoren (z.B. `#user`, `.btn`). Ändert sich ein Selektor, müssen potenziell hunderte Tests angepasst werden.
+Ein robustes Framework steht und fällt mit seiner Struktur. Spaghetti-Code in Tests führt zu hohen Wartungskosten.
 
-**Lösung: Page Object Model (POM)**
-Technische Details werden in separaten Klassen (`tests/pages/`) gekapselt. Der Test beschreibt die fachliche Intention, die Page Class implementiert die technische Ausführung.
+### 2.1 Das Page Object Model (POM)
+Das "Page Object Model" ist ein Design-Pattern, das hilft, Tests lesbar und wartbar zu halten.
+Die Grundidee ist einfach: Jede Seite der App (z.B. Login-Seite, Warenkorb) wird durch eine eigene Klasse repräsentiert. Diese Klasse enthält alle Selektoren und Aktionen für diese Seite.
+Der Test selbst kümmert sich nur noch um den Ablauf, nicht mehr darum, ob ein Button `#submit` oder `.btn-primary` heißt.
 
-👉 **Beispiel:** `tests/pages/LoginPage.ts`
-```typescript
-// Im Test:
-await loginPage.login('admin', 'pwd');
-```
-Bei Änderungen am Login-Formular muss lediglich die `LoginPage`-Klasse angepasst werden; die Tests bleiben unberührt.
+**Vorteil:** Ändert sich das Design der Login-Seite, muss nur die `LoginPage`-Klasse an einer Stelle angepasst werden, nicht jeder einzelne Test.
 
----
+### 2.2 Selektoren-Strategie (Stabilität)
+Um Tests gegen Design-Änderungen abzuhärten, nutzen wir:
+1.  **Explizite Test-IDs (`data-testid`):** Diese Attribute sind stabil und ändern sich nicht beim Redesign.
+2.  **Semantische Rollen (`getByRole`):** Prüft Buttons und Links so, wie ein Screenreader sie sieht.
+*Vermeide instabile Pfade wie XPath oder CSS-Ketten (`div > div > button`).*
 
-## 🎯 Stufe 3: Selektoren-Strategie (Stabilität)
-
-**Problemstellung:**
-Tests schlagen oft fehl, weil Layout-Änderungen (CSS/HTML) die Selektoren ungültig machen.
-
-**Lösung:**
-Verwendung stabiler, semantischer Attribute.
-
-1.  **`getByTestId`**: Bevorzugte Methode. Selektiert Elemente anhand dedizierter Test-Attribute (`data-testid`). Dies entkoppelt Tests vom Design.
-2.  **`getByRole`**: Prüft zusätzlich die Zugänglichkeit (Accessibility/Semantik), z.B. `getByRole('button', { name: 'Suchen' })`.
-
-**Best Practice:** Vermeidung von XPath und instabilen CSS-Pfaden.
+### 2.3 Fixtures (Dependency Injection)
+Anstatt Page Objects in jedem Test neu zu instanziieren (`const login = new LoginPage...`), nutzen wir Playwrights Fixture-System (`tests/fixtures/base-test.ts`).
+Die benötigten Pages werden dem Test einfach als Argument übergeben. Das reduziert Boilerplate-Code drastisch und ermöglicht zentrale Setup-Logik (z.B. automatischer Login vor dem Test).
 
 ---
 
-## 🚀 Stufe 4: Wiederverwendbarkeit (Fixtures)
+## 3. Skalierung & Enterprise Features
 
-**Problemstellung:**
-Wiederkehrender Boilerplate-Code (Initialisierung von Page Objects, Login-Prozeduren) erschwert die Lesbarkeit.
+Für den professionellen Einsatz in großen Teams sind folgende Aspekte implementiert:
 
-**Lösung: Custom Fixtures (`tests/fixtures/base-test.ts`)**
-Das `test`-Objekt von Playwright wurde erweitert:
-*   **Dependency Injection:** Page Objects (`shopPage`, `cartPage`) werden direkt in den Test injiziert.
-*   **Auto-Login:** Die Fixture `loggedInPage` führt die Authentifizierung automatisch vor Testbeginn durch.
+### 3.1 Environments (Staging, QA, Prod)
+Tests dürfen keine hardcodierten URLs enthalten (`http://localhost`).
+Wir nutzen Umgebungsvariablen (`BASE_URL`), die über NPM Scripts gesteuert werden. In der `package.json` finden sich Shortcuts:
+*   `npm run test:e2e` (Lokal)
+*   `npm run test:qa` (QA Umgebung)
+*   `npm run test:prod` (Live Umgebung)
 
-👉 **Ergebnis:** Siehe `tests/e2e/happy-path.spec.ts` für einen rein fachlichen, kompakten Testablauf.
+### 3.2 Parallelisierung (Performance)
+Playwright führt Tests standardmäßig parallel aus (Default: lokal Anzahl der CPU-Kerne, auf CI konfigurierbar).
+**Sicherheit:** Jeder Test läuft in einem isolierten `BrowserContext` (wie ein eigenes Inkognito-Fenster). Lokale Daten (LocalStorage, Cookies) werden nicht geteilt. Tests können sich somit nicht gegenseitig beeinflussen, was "Flaky Tests" verhindert.
 
----
-
-## 🔐 Stufe 5: Production Readiness (Daten & Environments)
-
-Ein professionelles Framework muss sicher und umgebungsunabhängig sein.
-
-1.  **Secrets Management:**
-    Sensible Daten (Passwörter) werden nicht im Code gespeichert. Es werden `.env`-Dateien verwendet. Playwright lädt diese mittels `dotenv`.
-
-2.  **Dynamische Daten (Faker)**
-    Um Caching-Effekte zu vermeiden und reale Szenarien zu simulieren, werden Nutzerdaten (Name, Email) mittels `@faker-js/faker` dynamisch generiert.
-    Dies geschieht direkt im Test, um bei jedem Durchlauf neue Werte zu erhalten.
-    👉 **Referenz:** Siehe `tests/e2e/happy-path.spec.ts` (Checkout-Schritt).
-
-3.  **Environment Konfiguration:**
-    Durch `baseURL: process.env.BASE_URL` in der Konfiguration ist der Testcode agnostisch gegenüber der Zielumgebung (Localhost, Staging, Production).
+### 3.3 Testdaten & Sicherheit
+*   **Secrets:** Passwörter liegen niemals im Code, sondern in `.env` Dateien (lokal) oder Secrets-Managern (CI).
+*   **Dynamische Daten:** Um Caching-Effekte zu umgehen und Validierungen zu stressen, werden Nutzerdaten (Name, Email) bei jedem Lauf mittels `@faker-js/faker` zufällig neu generiert. Dies erhöht die Testabdeckung signifikant.
 
 ---
 
-## ⚡ Stufe 6: Performance durch Parallelisierung
+## 4. Automatisierung (CI/CD)
 
-Playwright nutzt Parallelisierung für maximale Geschwindigkeit.
+Die Datei `.github/workflows/playwright.yml` definiert die Pipeline für GitHub Actions.
+Sie stellt sicher, dass Änderungen am Code automatisch verifiziert werden.
 
-**Konfiguration (`playwright.config.ts`):**
-```typescript
-fullyParallel: true,
-workers: process.env.CI ? 2 : undefined, 
-```
+**Der Workflow im Detail:**
+1.  **Trigger:** Startet bei jedem `push` auf Branches und bei `pull_request`.
+2.  **Environment:** Setzt einen Ubuntu-Container auf und installiert Node.js.
+3.  **Setup:** Installiert Projektabhängigkeiten und Playwright-Browser.
+4.  **Test:** Führt `npm run test:e2e` aus.
+5.  **Artifacts:** Lädt im Fehlerfall den HTML Report (inkl. Traces & Videos) hoch, damit man den Fehler analysieren kann.
 
-**Konzept der Isolation:**
-Playwright verwendet **`BrowserContexts`**. Jeder Test läuft in einem isolierten Kontext (vergleichbar mit einem Inkognito-Fenster).
-*   Jeder Test besitzt eigenen LocalStorage und Cookies.
-*   Tests beeinflussen sich gegenseitig nicht (keine "Side Effects").
-Dies ermöglicht eine sichere, parallele Ausführung.
-
----
-
-## 🌍 Stufe 7: Environments (Flexibilität)
-
-Derselbe Testcode kann gegen verschiedene Umgebungen ausgeführt werden:
-1.  Lokal (`localhost:3000`)
-2.  Staging (`staging.testshop.com`)
-3.  Production (`testshop.com`)
-
-**Implementierung:**
-Harte URLs wurden entfernt. Stattdessen werden Umgebungsvariablen genutzt:
-```typescript
-// Fallback auf localhost, wenn BASE_URL nicht gesetzt ist
-baseURL: process.env.BASE_URL || 'http://localhost:3000',
-```
-In der CI-Pipeline kann die Ziel-URL somit dynamisch gesteuert werden.
-
----
-
-## 🤖 Stufe 8: CI/CD Pipeline
-
-Automatisierung ist der Schlüssel zur Qualitätssicherung.
-Der Workflow `.github/workflows/playwright.yml` definiert:
-*   Automatischer Start bei jedem Git Push.
-*   Installation der Abhängigkeiten und Browser.
-*   Ausführung der Tests.
-*   Archivierung der Test-Reports (Video/Traces) im Fehlerfall.
-
----
-
-## 🐛 Stufe 9: Debugging & Analyse
-
-Effiziente Fehleranalyse ist essentiell. Playwright bietet hierfür fortschrittliche Werkzeuge:
-
-### 1. UI Mode (Time Travel)
-Befehl: `npx playwright test --ui`
-*   Ermöglicht das zeilenweise Debuggen ("Stepping").
-*   **Time Travel:** Visuelle Darstellung des DOM-Zustands vor und nach jeder Aktion.
-*   **Locator Picker:** Integriertes Tool zum Finden valider Selektoren.
-
-### 2. Trace Viewer
-Bei Fehlern in der CI/CD-Pipeline speichert Playwright einen **Trace** (Zip-Datei).
-Dieser enthält Screenshots, DOM-Snapshots, Netzwerk-Logs und Konsolenausgaben für den gesamten Testlauf. Analyse unter: [trace.playwright.dev](https://trace.playwright.dev).
-
----
-
-## ✅ Zusammenfassung
-
-Dieses Framework erfüllt folgende Qualitätskriterien:
-1.  **Wartbarkeit** (durch POM).
-2.  **Stabilität** (durch robuste Selektoren).
-3.  **Effizienz** (durch Fixtures und Parallelisierung).
-4.  **Sicherheit & Flexibilität** (durch Environment-Variablen).
-
-**Empfohlener nächster Schritt:** Klonen des Branches und Implementierung eines weiteren Testfalls (z.B. "Löschen aus dem Warenkorb") unter Verwendung der bestehenden Patterns.
+### Debugging
+Sollte ein Test in der Pipeline fehlschlagen, kann der **Trace** heruntergeladen und auf [trace.playwright.dev](https://trace.playwright.dev) analysiert werden. Dies ermöglicht eine "Zeitreise" durch den Testablauf, um den exakten Fehlerzeitpunkt zu finden.

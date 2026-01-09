@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:staging": "BASE_URL=https://staging.testshop.com playwright test",
+    "test:qa": "BASE_URL=https://qa.testshop.com playwright test",
+    "test:prod": "BASE_URL=https://testshop.com playwright test"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
