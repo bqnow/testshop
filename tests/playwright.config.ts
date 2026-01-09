@@ -71,7 +71,7 @@ export default defineConfig({
     webServer: (process.env.BASE_URL && !process.env.BASE_URL.includes('localhost'))
         ? undefined
         : {
-            command: 'npm run dev',
+            command: process.env.CI ? 'npm run start' : 'npm run dev',
             url: 'http://localhost:3000',
             reuseExistingServer: !process.env.CI,
             cwd: '..', // Execute npm command from project root
