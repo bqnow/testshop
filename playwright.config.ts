@@ -33,7 +33,8 @@ export default defineConfig({
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
-        headless: false,
+        /* Run headless in CI, headed locally for better DX */
+        headless: !!process.env.CI,
     },
 
     /* Configure projects for major browsers */
