@@ -14,15 +14,21 @@ export class CartPage extends BasePage {
     }
 
     async goto() {
-        await super.goto('/cart');
+        // Use 'domcontentloaded' to tolerate potential redirects in WebKit
+        await this.page.goto('/cart', { waitUntil: 'domcontentloaded' });
     }
 
     async increaseQuantity(productId: string) {
         await this.page.getByTestId(`increase-qty-${productId}`).click();
     }
 
-    async checkTotal(expectedTotal: string) {
-        await expect(this.page.getByTestId('cart-total')).toHaveText(expectedTotal);
+    async checkTotal(productId: string, unitPrice: string) {
+        const quantityElement = this.page.getByTestId(`quantity-${productId}`);
+        const quantity = await quantityElement.textContent();
+
+        const expectedTotal = (parseFloat(unitPrice) * parseInt(quantity!)).toFixed(2);
+
+        await expect(this.page.getByTestId('cart-total')).toContainText(`$${expectedTotal}`);
     }
 
     async proceedToCheckout() {

@@ -27,6 +27,7 @@ test.describe('E2E Checkout Flow', () => {
         await test.step('Checkout with dynamic user data', async () => {
             await cartPage.goto();
             await cartPage.increaseQuantity(PRODUCTS.laptop.id);
+            await cartPage.checkTotal(PRODUCTS.laptop.id, PRODUCTS.laptop.price);
 
             await cartPage.proceedToCheckout();
 
