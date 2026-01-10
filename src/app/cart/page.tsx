@@ -135,7 +135,7 @@ export default function CartPage() {
                                         }}
                                         data-testid={`decrease-qty-${item.id}`}
                                     >-</button>
-                                    <span style={{ fontSize: '0.9rem', width: '20px', textAlign: 'center' }}>{item.quantity}</span>
+                                    <span style={{ fontSize: '0.9rem', width: '20px', textAlign: 'center' }} data-testid={`quantity-${item.id}`}>{item.quantity}</span>
                                     <button
                                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                         style={{
