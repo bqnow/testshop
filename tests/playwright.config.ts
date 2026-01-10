@@ -25,7 +25,7 @@ dotenv.config({ path: path.resolve(configDir, '.env') });
  */
 export default defineConfig({
     testDir: '.', // Tests are now relative to this config file
-    outputDir: './test-results', // Store artifacts here
+    outputDir: './reporting/test-results', // Store artifacts here
     /* Run tests in files in parallel */
     fullyParallel: true,
     /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -35,7 +35,14 @@ export default defineConfig({
     /* Opt out of parallel tests on CI. */
     workers: process.env.CI ? 2 : undefined,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-    reporter: [['html', { outputFolder: 'playwright-report', title: 'TestShop E2E Test Results' }]],
+    reporter: [
+        ['html', { outputFolder: 'reporting/playwright', title: 'TestShop E2E Test Results', open: 'never' }],
+        ['allure-playwright', {
+            detail: true,
+            resultsDir: 'tests/reporting/allure-results',
+            suiteTitle: false
+        }]
+    ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
@@ -45,8 +52,8 @@ export default defineConfig({
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
-        /* Run headless in CI, headed locally for better DX */
-        headless: process.env.CI ? true : false,
+        /* Run headless by default. Use HEADLESS=false to run headed */
+        headless: process.env.HEADLESS === 'false' ? false : true,
     },
 
     /* Configure projects for major browsers */
@@ -77,6 +84,29 @@ export default defineConfig({
                 },
             },
         ]),
+        /* 
+         * BrowserStack Integration:
+         * Ermöglicht Tests auf echten Geräten in der Cloud.
+         * Erfordert BROWSERSTACK_USERNAME und BROWSERSTACK_ACCESS_KEY
+         */
+        ...(process.env.BROWSERSTACK_USERNAME ? [
+            {
+                name: 'browserstack_chrome',
+                use: {
+                    connectOptions: {
+                        wsEndpoint: `wss://cdp.browserstack.com/playwright?caps=${encodeURIComponent(JSON.stringify({
+                            'browser': 'chrome',
+                            'browser_version': 'latest',
+                            'os': 'Windows',
+                            'os_version': '11',
+                            'browserstack.user': process.env.BROWSERSTACK_USERNAME,
+                            'browserstack.key': process.env.BROWSERSTACK_ACCESS_KEY,
+                            'name': 'TestShop Enterprise E2E'
+                        }))}`
+                    },
+                },
+            },
+        ] : []),
     ],
 
     /* Run local dev server only when testing against localhost */

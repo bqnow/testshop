@@ -6,15 +6,21 @@ Dieses Projekt demonstriert eine Referenzarchitektur für skalierbare, wartbare 
 
 ---
 
-## 1. Fundament & Setup
+## 1. Basisarchitektur & Framework-Konfiguration
 
-Playwright wurde als Test-Runner gewählt, es hat entscheidende Vorteile gegenüber älteren Tools (wie Selenium):
-*   **Auto-Waiting:** Playwright wartet automatisch, bis Elemente klickbar sind. Instabile `sleep()` Befehle entfallen.
-*   **Browser-Engine:** Es steuert Chromium, Firefox und WebKit nativ, was extrem schnelle Ausführungszeiten ermöglicht.
-*   **Trace Viewer:** Bietet im Fehlerfall eine vollständige Aufzeichnung (Video, DOM, Netzwerk) zur Analyse. (Headed lokal, Headless auf CI).
+Die Wahl von Playwright als primäres E2E-Test-Framework basiert auf strategischen Vorteilen gegenüber Legacy-Tools:
+*   **Auto-Waiting:** Playwright antizipiert die Interaktionsbereitschaft von Elementen. Die Notwendigkeit instabiler `sleep()`-Anweisungen wird vollständig eliminiert.
+*   **Engine-Native Steuerung:** Chromium, Firefox und WebKit werden nativ angesteuert, was eine extrem performante Testausführung ermöglicht.
+*   **Trace Viewer:** Ermöglicht im Fehlerfall eine lückenlose forensische Analyse durch die Aufzeichnung von DOM-Snapshots, Netzwerkverkehr und Video-Sequenzen.
 
-### Sichtbarkeit (Headed vs. Headless)
-Lokal öffnen sich die Browser-Fenster, damit du dem Test zuschauen kannst. In der CI-Pipeline läuft alles unsichtbar ("headless"), um Ressourcen zu sparen und weil es dort keinen Bildschirm gibt. Das wird in der Config dynamisch gesteuert (siehe `headless: process.env.CI ? true : false`).
+### Ausführungsmodi (Headed vs. Headless)
+Standardmäßig operiert das Framework im **Headless-Modus**, um eine maximale Ausführungsgeschwindigkeit zu erreichen. Die Sichtbarkeit kann jedoch für Debugging-Zwecke flexibel gesteuert werden:
+*   **Headless (Standard / CI-Ready):** `npm run test:e2e`
+*   **Headed (Interaktive Analyse):** `HEADLESS=false npm run test:e2e`
+
+---
+
+## 2. Architektur & Wartbarkeit
 
 ### Automatisierter WebServer
 Die `tests/playwright.config.ts` ist so konfiguriert, dass sie den lokalen Serverstatus prüft:
@@ -22,14 +28,9 @@ Die `tests/playwright.config.ts` ist so konfiguriert, dass sie den lokalen Serve
 *   Wird gegen Remote-Umgebungen (QA, Staging) getestet, wird dieser Schritt übersprungen.
 Dies reduziert manuelle Schritte.
 
----
-
-## 2. Architektur & Wartbarkeit
-
 ### 2.1 Das Page Object Model (POM)
-Das "Page Object Model" ist ein Design-Pattern, das hilft, Tests lesbar und wartbar zu halten.
-Die Grundidee ist einfach: Jede Seite der App (z.B. Login-Seite, Warenkorb) wird durch eine eigene Klasse repräsentiert. Diese Klasse enthält alle Selektoren und Aktionen für diese Seite.
-Der Test selbst kümmert sich nur noch um den Ablauf, nicht mehr darum, ob ein Button `#submit` oder `.btn-primary` heißt.
+Das Page Object Model ist ein essenzielles Design-Pattern zur Gewährleistung der Wartbarkeit und Lesbarkeit.
+Jede logische Einheit der Applikation (z.B. LoginPage, ShoppingCart) wird durch eine dedizierte Klasse repräsentiert. Diese abstrahiert die technischen Selektoren und stellt fachliche Methoden (Aktionen) bereit. Der Testcode bleibt somit rein deklarativ und fokussiert sich auf die Geschäftsprozesse.
 
 **Vorteil:** Ändert sich das Design der Login-Seite, muss nur die `LoginPage`-Klasse an einer Stelle angepasst werden, nicht jeder einzelne Test.
 
@@ -55,9 +56,11 @@ Wir nutzen Umgebungsvariablen (`BASE_URL`), die über NPM Scripts gesteuert werd
 Die Konfigurationsdateien hierfür liegen in `tests/config/` (z.B. `.env.qa`).
 
 In der `package.json` finden sich Shortcuts:
-*   `npm run test:e2e` (Lokal - nutzt `tests/config/.env.local`)
+*   **`npm run test:full-cycle`** (Empfohlen: Führt Tests aus, rettet Historie, generiert Allure Report & Archiv)
+*   `npm run test:e2e` (Standard-Lauf lokal)
 *   `npm run test:qa` (QA Umgebung - nutzt `tests/config/.env.qa`)
 *   `npm run test:staging` (Staging Umgebung - nutzt `tests/config/.env.staging`)
+*   `npm run test:prod` (Produktionsumgebung - nutzt `tests/config/.env.prod`)
 
 ### 3.2 Parallelisierung (Performance)
 Playwright führt Tests standardmäßig parallel aus (Default: lokal Anzahl der CPU-Kerne, auf CI konfigurierbar).
@@ -90,3 +93,59 @@ Sie stellt sicher, dass Änderungen am Code automatisch verifiziert werden.
 
 ### Debugging
 Sollte ein Test in der Pipeline fehlschlagen, kann der **Trace** heruntergeladen und auf [trace.playwright.dev](https://trace.playwright.dev) analysiert werden. Dies ermöglicht eine "Zeitreise" durch den Testablauf, um den exakten Fehlerzeitpunkt zu finden.
+
+---
+
+## 5. Reporting & Analyse
+
+Wir nutzen ein duales Reporting-System, um sowohl Management-Übersichten als auch tiefes technisches Debugging zu ermöglichen. Alle Reports liegen zentral in `tests/reporting/`.
+
+### 5.1 Allure Reporting (Management & Trends)
+Allure bietet eine visuell ansprechende Aufbereitung der Testergebnisse inklusive Historie.
+*   **History/Trends:** Erkenntnisse über Teststabilität über Zeit.
+*   **Archiv:** Jeder Lauf wird zeitgestempelt in `tests/reporting/archive/` gesichert.
+*   **Befehle:**
+    *   `npm run report:generate`: Baut den aktuellen Report.
+    *   `npm run report:open`: Öffnet das Dashboard.
+    *   `npm run report:archive`: Archiviert den aktuellen Stand manuell.
+
+### 5.2 Playwright HTML Report (Deep Debugging)
+Der native Report ist direkt mit dem **Trace Viewer** verknüpft. Sobald ein Test fehlschlägt, kannst du hier Screenshots, Videos und Netzwerk-Logs pro Klick einsehen.
+*   📂 Pfad: `tests/reporting/playwright/index.html`
+
+### 5.3 Der Full-Cycle Workflow
+Für eine umfassende Validierung inklusive Trend-Analyse wird der Befehl `npm run test:full-cycle` empfohlen. Dieser orchestrale Workflow automatisiert folgende Schritte:
+`Datenpersistenz sichern` ➡️ `Testausführung` ➡️ `Berichtgenerierung` ➡️ `Archivierung` ➡️ `Auto-Open`.
+
+#### Datenpersistenz & Trend-Analyse (History Preservation)
+Allure operiert standardmäßig zustandslos. Um eine kontinuierliche Trend-Analyse über mehrere Testläufe hinweg zu ermöglichen, werden die historischen Daten aus dem letzten Bericht (`allure-report/history`) vor der Neugenerierung in das aktuelle Ergebnisverzeichnis (`allure-results/history`) transferiert. Dieser Prozess garantiert die Sichtbarkeit von Regressions-Trends.
+
+---
+
+## 6. Umgebungsanalyse: Varianten der Testausführung
+
+| Feature | Lokal (Mac) | Docker (Local) | GitHub Actions (CI) |
+| :--- | :--- | :--- | :--- |
+| **Browser** | Chromium, Firefox, **WebKit** | Chromium, Firefox (WebKit skipped) | Chromium, Firefox (WebKit skipped) |
+| **Performance** | Sehr hoch (nativ) | Hoch (Container-Overhead) | Mittel (Cloud-Ressourcen) |
+| **History/Trend** | Ja (permanent auf Festplatte) | Ja (via Volume Mount) | **Nein** (Flüchtig / ZIP-Download) |
+| **Debug-Tools** | UI Modus, Live-Fenster | Logs & Video-Files | Trace Viewer & Video-Artifacts |
+
+**Wann was nutzen?**
+*   **Lokal:** Während der Entwicklung für schnelles Feedback und WebKit-Tests.
+*   **Docker:** Vor dem Push, um sicherzustellen, dass alles in einer sauberen Linux-Umgebung (identisch zur CI) läuft.
+*   **CI:** Automatisierte Qualitätskontrolle bei jedem Pull Request.
+
+---
+
+## 7. Cloud-Skalierung (Enterprise Readiness)
+
+Für globale Verfügbarkeitstests oder Cross-Browser-Checks auf echten Geräten (z.B. Safari auf iOS) ist das Framework für Cloud-Anbieter wie **BrowserStack** vorbereitet.
+
+### Funktionsweise
+Statt Browser lokal zu starten, verbindet sich Playwright via WebSocket (`connectOptions`) mit einem Remote-Grid. Dies ermöglicht:
+*   **Massive Parallelisierung:** 100+ Tests gleichzeitig in der Cloud.
+*   **Reale Endgeräte:** Testen auf physischen iPhones, iPads und verschiedenen Windows/macOS-Versionen.
+*   **Integration:** Die Anbindung erfolgt dynamisch in der `playwright.config.ts`. Sobald `BROWSERSTACK_USERNAME` in der `.env` gesetzt ist, wird das Cloud-Projekt aktiviert.
+
+*Hinweis: Für lokale Tests gegen Cloud-Browser ist ein Tunnel (z.B. BrowserStack Local) erforderlich, damit der Cloud-Server den lokalen `localhost:3000` erreichen kann.*

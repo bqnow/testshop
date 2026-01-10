@@ -37,9 +37,15 @@ docker-compose up --build
 ```
 
 **Was passiert im Hintergrund?**
-1.  Docker baut den Container basierend auf dem `Dockerfile` (installiert Linux, Playwright, Browser).
-2.  Es kopiert unseren Source-Code in den Container.
-3.  Es baut die App (`npm run build`) und führt die Tests aus.
+1.  Docker baut den Container basierend auf dem `Dockerfile` (Installation von Linux, Playwright und Browsern).
+2.  Die Applikation wird innerhalb des Containers gebaut (`npm run build`).
+3.  **Testausführung:** Der Container führt automatisch **`npm run test:e2e`** aus.
+
+#### Warum `npm run test:e2e` im Container?
+Im Gegensatz zum lokalen `test:full-cycle` konzentriert sich der Docker-Container rein auf die **Testausführung und Daten-Erzeugung**.
+*   **Kein Overhead:** Tools wie Allure oder Archivierungs-Skripte sind im Container nicht installiert, um das Image schlank zu halten.
+*   **Daten-Export:** Die erzeugten Rohdaten (`allure-results`) fließen über das Volume-Mapping direkt zurück auf deinen Host-Rechner.
+*   **Flexibilität:** Du kannst die Ergebnisse nach dem Docker-Lauf bequem lokal visualisieren und archivieren; zudem ermöglicht dieser modulare Ansatz einer reinen Daten-Erzeugung eine nahtlose Integration in zentrale CI-Systeme wie Jenkins, welche das Reporting und History-Management übernehmen.
 
 ## 4. Die Architektur: "All-in-One"
 In diesem Setup befinden sich **Webshop UND Tests im selben Container**.
@@ -54,7 +60,10 @@ Damit du die Reports nicht im Container "verlierst", nutzen wir **Volume Mapping
 Wir haben den Container so konfiguriert, dass er den Report-Ordner direkt auf deine Festplatte spiegelt.
 
 Nach dem Test findest du den Report ganz normal hier:
-📂 `tests/playwright-report/index.html`
+📂 `tests/reporting/playwright/index.html` (Playwright HTML)
+📂 `tests/reporting/allure-report/index.html` (Allure - lokal generiert)
+
+**Tipp:** Nach dem Docker-Lauf kannst du lokal `npm run report:generate && npm run report:open` ausführen, um die Ergebnisse aus dem Container in Allure zu visualisieren.
 
 ## 5. Technische Details
 

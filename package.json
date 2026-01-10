@@ -10,7 +10,11 @@
     "test:e2e": "playwright test --config tests/playwright.config.ts",
     "test:qa": "TEST_ENV=qa BASE_URL=https://qa.testshop.com playwright test --config tests/playwright.config.ts",
     "test:staging": "TEST_ENV=staging BASE_URL=https://staging.testshop.com playwright test --config tests/playwright.config.ts",
-    "test:prod": "TEST_ENV=prod BASE_URL=https://testshop.com playwright test --config tests/playwright.config.ts"
+    "test:prod": "TEST_ENV=prod BASE_URL=https://testshop.com playwright test --config tests/playwright.config.ts",
+    "report:generate": "allure generate tests/reporting/allure-results -o tests/reporting/allure-report --clean",
+    "report:open": "allure open tests/reporting/allure-report",
+    "report:archive": "mkdir -p tests/reporting/archive && cp -r tests/reporting/allure-report tests/reporting/archive/report-$(date +%Y%m%d-%H%M%S)",
+    "test:full-cycle": "mkdir -p tests/reporting/allure-results/history && cp -r tests/reporting/allure-report/history/* tests/reporting/allure-results/history/ || true && npm run test:e2e || true && npm run report:generate && npm run report:archive && npm run report:open"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
@@ -24,6 +28,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "allure-commandline": "^2.36.0",
+    "allure-playwright": "^3.4.4",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
     "typescript": "^5"

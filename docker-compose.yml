@@ -6,7 +6,6 @@ services:
       - SKIP_WEBKIT=true # WebKit is unstable in containers
     volumes:
       # Map report folders so we can view results on host machine
-      - ./tests/playwright-report:/app/tests/playwright-report
-      - ./tests/test-results:/app/tests/test-results
+      - ./tests/reporting:/app/tests/reporting
     ipc: host # Recommended for browser performance
     platform: linux/amd64 # Ensure compatibility on Mac Silicon

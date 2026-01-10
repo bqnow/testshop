@@ -33,10 +33,10 @@ jobs:
       env:
         SKIP_WEBKIT: true # WebKit is unstable in Linux CI environments
 
-    - name: Upload Playwright Report
+    - name: Upload Reporting Artifacts
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: playwright-report
-        path: tests/playwright-report/
+        name: reporting-artifacts
+        path: tests/reporting/
         retention-days: 30
