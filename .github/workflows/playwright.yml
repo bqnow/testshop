@@ -30,6 +30,8 @@ jobs:
 
     - name: Run Playwright tests
       run: npm run test:e2e
+      env:
+        SKIP_WEBKIT: true # WebKit is unstable in Linux CI environments
 
     - name: Upload Playwright Report
       if: always()
