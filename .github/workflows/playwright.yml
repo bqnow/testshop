@@ -33,6 +33,14 @@ jobs:
       env:
         SKIP_WEBKIT: true # WebKit is unstable in Linux CI environments
 
+    - name: Install Allure Commandline
+      if: always()
+      run: npm install -g allure-commandline
+
+    - name: Generate Allure Report
+      if: always()
+      run: npm run report:generate
+
     - name: Upload Reporting Artifacts
       if: always()
       uses: actions/upload-artifact@v4
