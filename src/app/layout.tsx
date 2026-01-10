@@ -30,7 +30,7 @@ export default function RootLayout({
               {children}
             </main>
             <footer style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-              <p>&copy; 2024 TestShop by <strong>BQ Now</strong> - Testing Playground</p>
+              <p>&copy; 2026 TestShop by <strong>BQ now</strong> - Testing Playground</p>
             </footer>
           </CartProvider>
         </AuthProvider>
