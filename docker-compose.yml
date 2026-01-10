@@ -1,11 +1,15 @@
+version: '3.8'
+
 services:
-  playwright:
-    build: .
-    environment:
-      - CI=true # Forces headless mode and production server usage (npm run start)
-      - SKIP_WEBKIT=true # WebKit is unstable in containers
-    volumes:
-      # Map report folders so we can view results on host machine
-      - ./tests/reporting:/app/tests/reporting
-    ipc: host # Recommended for browser performance
-    platform: linux/amd64 # Ensure compatibility on Mac Silicon
+  # The Webshop Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
