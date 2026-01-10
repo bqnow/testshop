@@ -1,66 +1,45 @@
-# TestShop - Dein Test- & Automatisierungs-Spielplatz 🚀
+# TestShop - E-Commerce Target Application 🚀
 
-Willkommen im **TestShop**! Dies ist eine moderne E-Commerce Webanwendung (gebaut mit Next.js), an der du Testautomatisierung und das Bauen von Pipelines (CI/CD) üben wirst.
+Diese Next.js Applikation dient als moderne E-Commerce Plattform für Schulungszwecke in der Testautomatisierung und CI/CD-Orchestrierung.
 
 ---
 
 ## 🏗️ Architektur & Schulungskonzept
 
-Dieses Projekt folgt dem **"Target & Template" Ansatz**. Hier findest du die Applikation, gegen die getestet wird.
+Das Projekt folgt strikt dem **"Target & Template" Ansatz**. Die Applikation (Target) und das Test-Framework (Template) sind technologisch vollständig entkoppelt.
 
-1.  **Diese App (Target):** Der Quellcode des Webshops.
-2.  **Test-Vorlagen (Templates):** Professionelle E2E-Testprojekte in separaten Repositories.
+### Ressourcen für Test-Consultants
+Die E2E-Automatisierung wird in dedizierten Repositories verwaltet. Für den Einstieg und die technische Dokumentation nutzen Sie bitte das entsprechende Template:
 
-### 🏁 Start für Test-Consultants
-Bist du hier, um Testautomatisierung zu lernen? Dann ist dein erster Schritt im **Playwright Template Repository**:
-👉 **[Playwright Showcase Template & Onboarding Guide](https://github.com/bqnow/testshop-playwright-template)**
-
-Dort findest du die vollständige Anleitung zur **Einrichtung deiner IDE**, Node.js, Git und den ersten Schritten im Framework.
+👉 **[Playwright Framework Template](https://github.com/bqnow/testshop-playwright-template)**
 
 ---
 
-### Verfügbare Test-Templates:
-*   🎭 **[Playwright Showcase Template](https://github.com/bqnow/testshop-playwright-template)**: Unsere Referenz-Implementierung für Playwright (POM, Allure, Docker).
+## 🚀 Lokale Ausführung
 
----
-
-## 🚀 Schnellstart
-
-### 1. Webshop lokal starten
+### 1. Developer Setup
 ```bash
 npm install
 npm run dev
 ```
-👉 [http://localhost:3000](http://localhost:3000)
+Local Endpoint: [http://localhost:3000](http://localhost:3000)
 
-### 2. Gesamtsystem via Docker
+### 2. Docker Orchestrierung
+Die Applikation kann isoliert via Docker Compose gestartet werden:
 ```bash
 docker compose up --build
 ```
 
 ---
 
-## 📚 Dokumentation für Tester
+## 📚 Begleitdokumentation
 
-Möchtest du lernen, wie man diese App professionell automatisiert? Besuche unser dediziertes Test-Repository:
-� **[Playwright Test Suite & Dokumentation](https://github.com/bqnow/testshop-playwright-template)**
-
-Dort findest du Guides zu:
-*   Page Object Model (POM)
-*   Reporting mit Allure
-*   Docker & CI/CD Integration
+*   🎓 **[QA Handbuch (QA_HANDBOOK.md)](./QA_HANDBOOK.md)**: Theoretische Grundlagen (Testpyramide, Shift Left).
+*   🐳 **[Docker Guide (DOCKER.md)](./DOCKER.md)**: Einsatz von Containern in der Testautomatisierung.
 
 ---
 
-## 🎯 Deine Aufgabe als Test Consultant
-
-Stelle dir vor, du bist Teil eines Agile-Teams. Deine Mission ist es, den Bestellprozess zu automatisieren. Nutze die oben verlinkten Templates als Basis für deine eigene Test-Suite.
-
-*Hintergrundwissen zur QA findest du im [QA Handbuch](./QA_HANDBOOK.md).*
-
----
-
-## 🛠️ Voraussetzungen
-1.  **Node.js (LTS)**
-2.  **Git**
-3.  **Docker Desktop**
+## 🛠️ Systemanforderungen
+*   **Node.js (LTS)**
+*   **Git**
+*   **Docker Desktop** (optional für Container-Tests)
