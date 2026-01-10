@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main, master, showcase/** ]
     tags: [ 'v*.*.*' ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
 
 env:
   REGISTRY: ghcr.io
