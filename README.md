@@ -11,6 +11,14 @@ Dieses Projekt folgt dem **"Target & Template" Ansatz**. Hier findest du die App
 1.  **Diese App (Target):** Der Quellcode des Webshops.
 2.  **Test-Vorlagen (Templates):** Professionelle E2E-Testprojekte in separaten Repositories.
 
+### 🏁 Start für Test-Consultants
+Bist du hier, um Testautomatisierung zu lernen? Dann ist dein erster Schritt im **Playwright Template Repository**:
+👉 **[Playwright Showcase Template & Onboarding Guide](https://github.com/bqnow/testshop-playwright-template)**
+
+Dort findest du die vollständige Anleitung zur **Einrichtung deiner IDE**, Node.js, Git und den ersten Schritten im Framework.
+
+---
+
 ### Verfügbare Test-Templates:
 *   🎭 **[Playwright Showcase Template](https://github.com/bqnow/testshop-playwright-template)**: Unsere Referenz-Implementierung für Playwright (POM, Allure, Docker).
 
