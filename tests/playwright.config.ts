@@ -85,28 +85,29 @@ export default defineConfig({
             },
         ]),
         /* 
-         * BrowserStack Integration:
-         * Ermöglicht Tests auf echten Geräten in der Cloud.
-         * Erfordert BROWSERSTACK_USERNAME und BROWSERSTACK_ACCESS_KEY
+         * BrowserStack Multi-Browser Grid:
+         * Generiert dynamisch Projekte für verschiedene Browser/OS Kombinationen.
          */
         ...(process.env.BROWSERSTACK_USERNAME ? [
-            {
-                name: 'browserstack_chrome',
-                use: {
-                    connectOptions: {
-                        wsEndpoint: `wss://cdp.browserstack.com/playwright?caps=${encodeURIComponent(JSON.stringify({
-                            'browser': 'chrome',
-                            'browser_version': 'latest',
-                            'os': 'Windows',
-                            'os_version': '11',
-                            'browserstack.user': process.env.BROWSERSTACK_USERNAME,
-                            'browserstack.key': process.env.BROWSERSTACK_ACCESS_KEY,
-                            'name': 'TestShop Enterprise E2E'
-                        }))}`
-                    },
+            { browser: 'chrome', os: 'Windows', os_version: '11', name: 'bs_windows_chrome' },
+            { browser: 'edge', os: 'Windows', os_version: '11', name: 'bs_windows_edge' },
+            { browser: 'safari', os: 'OS X', os_version: 'Sonoma', name: 'bs_mac_safari' },
+        ].map(caps => ({
+            name: caps.name,
+            use: {
+                connectOptions: {
+                    wsEndpoint: `wss://cdp.browserstack.com/playwright?caps=${encodeURIComponent(JSON.stringify({
+                        'browser': caps.browser,
+                        'browser_version': 'latest',
+                        'os': caps.os,
+                        'os_version': caps.os_version,
+                        'browserstack.user': process.env.BROWSERSTACK_USERNAME,
+                        'browserstack.key': process.env.BROWSERSTACK_ACCESS_KEY,
+                        'name': `TestShop - ${caps.name}`
+                    }))}`
                 },
             },
-        ] : []),
+        })) : []),
     ],
 
     /* Run local dev server only when testing against localhost */

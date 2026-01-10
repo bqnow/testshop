@@ -1,100 +1,94 @@
-# Docker & Containerisierung
+# Docker & Containerisierung: Lokale CI-Simulation
 
-Dieses Projekt enthält eine Docker-Konfiguration (`Dockerfile` & `docker-compose.yml`), um Tests in einer isolierten Umgebung auszuführen.
+## Einleitung
+Dieses Projekt nutzt Docker, um eine **identische Testumgebung** für alle Beteiligten zu schaffen. Es eliminiert das Problem "Bei mir funktioniert es" (Works on my machine), indem es die exakte Linux-Umgebung simuliert, in der auch unsere CI/CD-Pipelines laufen.
 
-## 1. Was ist Docker?
+---
 
-Docker ist eine Technologie, um Anwendungen und ihre gesamte Umgebung in "Container" zu verpacken.
+## 1. Quick Start (Schnellstart)
 
-### Der Vergleich: Ein Laptop im Laptop
-Stell dir vor, du könntest einen brandneuen, sauber installierten Computer (Linux) einfach als Datei verschicken.
-*   **Ohne Docker:** Jeder Entwickler muss Node.js, Browser und Abhängigkeiten selbst auf seinem Gerät installieren. Versionen unterscheiden sich, Konfigurationen weichen ab ("Works on my machine").
-*   **Mit Docker:** Wir definieren **einmal** den perfekten Zustand in einem "Image". Egal wer dieses Image startet, er bekommt exakt dieselbe Umgebung – bit für bit identisch. Es ist wie eine leichte virtuelle Maschine, die in Sekunden startet.
-
-## 2. Warum nutzen wir es für Tests?
-
-Tests sind empfindlich gegenüber Umgebungsunterschieden.
-Ein Test, der auf macOS erfolgreich ist, kann unter Linux (CI-Server) fehlschlagen, weil:
-*   Schriftarten (Fonts) pixelweise anders gerendert werden (Screen Comparison Tests schlagen fehl).
-*   Browser-Versionen minimal abweichen.
-*   Betriebssystem-spezifische Pfade oder Befehle anders sind.
-
-**Docker garantiert Konsistenz:**
-Wenn du die Tests via Docker ausführst, laufen sie in einem **Ubuntu Linux Container**. Das ist exakt das gleiche Betriebssystem, das auch GitHub Actions (CI) verwendet. Du kannst also lokale Probleme ausschließen und die echte CI-Umgebung simulieren.
-
-### Der Unterschied im Bild
-![Workflow-Vergleich: Manuell vs. Docker](tests/docker_workflow_comparison.png)
-
-## 3. Wie nutzen wir es?
-
-Voraussetzung: Du hast [Docker Desktop](https://www.docker.com/products/docker-desktop/) installiert.
-
-### Tests starten
-Führe diesen Befehl im Terminal aus:
+Wenn du Docker Desktop installiert hast, reicht ein einziger Befehl, um die gesamte Suite in einer isolierten Umgebung zu testen:
 
 ```bash
-docker-compose up --build
+docker compose up --build
+```
+*Dieser Befehl baut das Image neu (falls nötig), startet die Web-Applikation und führt alle E2E-Tests in Chromium und Firefox aus.*
+
+---
+
+## 2. Workflow: Vom Test zum Ergebnis
+
+Da der Docker-Container auf Geschwindigkeit und Portabilität optimiert ist, erzeugt er lediglich die **Rohdaten**. Das Anschauen der Berichte erfolgt im Anschluss bequem auf deinem Host-Rechner (Mac/Windows).
+
+### Die ideale Reihenfolge:
+
+1.  **Tests starten:**
+    ```bash
+    docker compose up --build
+    ```
+2.  **Berichte generieren (lokal):**
+    Nach Abschluss des Containers liegen die Ergebnisse in `tests/reporting/`. Wandle diese nun in eine visuelle Darstellung um:
+    ```bash
+    npm run report:generate
+    ```
+3.  **Analyse:**
+    Öffne das Dashboard, um die Ergebnisse im Detail zu prüfen:
+    ```bash
+    npm run report:open
+    ```
+
+---
+
+## 3. Die Architektur: Warum Docker?
+
+### Konsistenz ist der Schlüssel
+Ein Test, der lokal auf macOS grün ist, kann in der Pipeline (Linux) fehlschlagen (z.B. wegen unterschiedlichem Font-Rendering oder Browser-Builds). Docker garantiert:
+*   **Identisches OS:** Ubuntu Linux im Container entspricht dem OS der GitHub Actions.
+*   **Isolierung:** Die Web-App und die Tests laufen im selben "Mini-Computer" (Container).
+*   **Schlanke Ausführung:** Der Container konzentriert sich auf die reine Berechnung (`npm run test:e2e`). Schwerfällige Prozesse wie das Generieren von Allure-Reports oder Archivierung werden an den Host (deinen Rechner) oder die CI-Infrastruktur (Jenkins/GitHub) delegiert.
+
+---
+
+## 4. Technische Details (Hintergründe)
+
+### Das Konzept: Ein vorkonfigurierter Test-PC
+Um zu verstehen, was hier passiert, hilft die Vorstellung eines **virtuellen Laptops**:
+
+1.  **Das Dockerfile (Das Kochrezept):** 
+    Stell dir vor, du schreibst eine Liste: "Kauf einen leeren Laptop, installiere Linux, installiere Node.js, lade die Playwright-Browser herunter und kopiere meinen Programmcode auf den Schreibtisch." Das Dockerfile ist genau diese Schritt-für-Schritt-Anleitung.
+    
+2.  **Das Image (Der fertige Laptop im Karton):** 
+    Wenn man das "Rezept" ausführt (Build-Prozess), entsteht ein **Image**. Das ist wie der fertig konfigurierte Laptop, der originalverpackt im Regal steht. Er ist bereit, aber er arbeitet noch nicht.
+    
+3.  **Der Container (Der eingeschaltete Laptop):** 
+    Wenn du `docker compose up` tippst, "packst du den Laptop aus und schaltest ihn ein". Jetzt wird der Code ausgeführt, die Browser starten und die Tests laufen.
+
+**Der Vorteil:** Jeder in deinem Team packt exakt denselben "Laptop" aus. Es gibt keine Unterschiede bei den Versionen oder Einstellungen.
+
+### Die Dateien im Detail
+Regelt, wie der Container mit deinem Rechner interagiert:
+*   **Volumes:** Spiegelt den Ordner `tests/reporting/` vom Container auf deine Festplatte. So gehen Ergebnisse nicht verloren, wenn der Container gestoppt wird.
+*   **Environment:** Setzt Parameter wie `CI=true` und `SKIP_WEBKIT=true`.
+
+### WebKit (Safari) Limitation
+Unter Linux-Containern ist WebKit (Safari) oft instabil. Um Fehlalarme zu vermeiden, überspringen wir WebKit in Docker.
+*   **Lokal (Mac):** Alle 3 Browser (Chrome, Firefox, Safari)
+*   **Docker:** 2 Browser (Chrome, Firefox)
+*   **GitHub Actions:** Alle 3 Browser (da die CI-Runner optimiert sind)
+
+---
+
+## 5. Troubleshooting (Problemlösung)
+
+Falls der Build-Prozess hängen bleibt oder alte Teststände anzeigt:
+
+**Cache leeren:**
+```bash
+docker builder prune -f
+docker compose build --no-cache
 ```
 
-**Was passiert im Hintergrund?**
-1.  Docker baut den Container basierend auf dem `Dockerfile` (Installation von Linux, Playwright und Browsern).
-2.  Die Applikation wird innerhalb des Containers gebaut (`npm run build`).
-3.  **Testausführung:** Der Container führt automatisch **`npm run test:e2e`** aus.
-
-#### Warum `npm run test:e2e` im Container?
-Im Gegensatz zum lokalen `test:full-cycle` konzentriert sich der Docker-Container rein auf die **Testausführung und Daten-Erzeugung**.
-*   **Kein Overhead:** Tools wie Allure oder Archivierungs-Skripte sind im Container nicht installiert, um das Image schlank zu halten.
-*   **Daten-Export:** Die erzeugten Rohdaten (`allure-results`) fließen über das Volume-Mapping direkt zurück auf deinen Host-Rechner.
-*   **Flexibilität:** Du kannst die Ergebnisse nach dem Docker-Lauf bequem lokal visualisieren und archivieren; zudem ermöglicht dieser modulare Ansatz einer reinen Daten-Erzeugung eine nahtlose Integration in zentrale CI-Systeme wie Jenkins, welche das Reporting und History-Management übernehmen.
-
-## 4. Die Architektur: "All-in-One"
-In diesem Setup befinden sich **Webshop UND Tests im selben Container**.
-*   Der Container startet den Webshop intern (`localhost`).
-*   Die Tests greifen direkt darauf zu.
-
-**Warum so?**
-Dies spiegelt exakt wider, wie automatisierte Pipelines (GitHub Actions) arbeiten: Ein Server lädt den Code, baut die App und testet sie in einem Rutsch. Es ist die einfachste und robusteste Methode für E2E-Tests.
-
-### Ergebnisse ansehen
-Damit du die Reports nicht im Container "verlierst", nutzen wir **Volume Mapping**.
-Wir haben den Container so konfiguriert, dass er den Report-Ordner direkt auf deine Festplatte spiegelt.
-
-Nach dem Test findest du den Report ganz normal hier:
-📂 `tests/reporting/playwright/index.html` (Playwright HTML)
-📂 `tests/reporting/allure-report/index.html` (Allure - lokal generiert)
-
-**Tipp:** Nach dem Docker-Lauf kannst du lokal `npm run report:generate && npm run report:open` ausführen, um die Ergebnisse aus dem Container in Allure zu visualisieren.
-
-## 5. Technische Details
-
-### Dockerfile vs. docker-compose.yml – Wozu zwei Dateien?
-
-**`Dockerfile`** (Das Rezept):
-Definiert, **wie** der Container aufgebaut wird:
-*   Welches Basis-Image (Ubuntu mit Playwright)?
-*   Welche Befehle (`npm ci`, `npm run build`)?
-*   Was ist der Standard-Befehl beim Start (`CMD`)?
-
-**Nutzen:** Wiederverwendbar. Du kannst das Image einmal bauen und überall deployen (CI, Kollegen, Cloud). Es ist die "Blaupause".
-
-**`docker-compose.yml`** (Die Orchestrierung):
-Definiert, **wie** der Container ausgeführt wird:
-*   Welche Environment-Variablen (`CI=true`)?
-*   Welche Ordner werden gemapped (damit Reports rauskommen)?
-*   Welche Ressourcen (RAM, Netzwerk)?
-
-**Nutzen:** Vereinfacht die Bedienung. Ohne Compose müsstest du einen 10-zeiligen `docker run`-Befehl tippen. Mit Compose reicht `docker compose up`.
-
-**Analogie:** Das Dockerfile ist das Kochrezept. Docker Compose ist die Anweisung, wie man den Tisch deckt und serviert.
-
-### WebKit in Docker (Limitation)
-
-WebKit (Safari) ist in Linux-Containern instabil.
-Deshalb überspringen wir WebKit automatisch in Docker (`SKIP_WEBKIT=true`).
-
-**Tests laufen trotzdem in:**
-*   **Chromium** ✅ (Docker)
-*   **Firefox** ✅ (Docker)
-*   **WebKit** ✅ (GitHub Actions CI)
-
-Damit ist die Browser-Abdeckung vollständig, ohne dass Docker crasht.
+**Container manuell stoppen:**
+```bash
+docker compose down
+```
