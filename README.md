@@ -1,19 +1,14 @@
 # TestShop - E-Commerce Target Application 🚀
 
-> 🌍 **Live Demo:** [https://testshop-dusky.vercel.app/](https://testshop-dusky.vercel.app/)
-
 Diese Next.js Applikation dient als moderne E-Commerce Plattform für Schulungszwecke in der Testautomatisierung und CI/CD-Orchestrierung.
 
+
+> 🌍 **Live Demo:** [https://testshop-dusky.vercel.app/](https://testshop-dusky.vercel.app/)
 ---
 
 ## 🏗️ Architektur & Schulungskonzept
 
 Das Projekt folgt strikt dem **"Target & Template" Ansatz**. Die Applikation (Target) und das Test-Framework (Template) sind technologisch vollständig entkoppelt.
-
-### Ressourcen für Test-Consultants
-Die E2E-Automatisierung wird in dedizierten Repositories verwaltet. Templates mit verschiedenen Test-Frameworks sind verfügbar:
-
-👉 **[Playwright Framework Template](https://github.com/bqnow/testshop-playwright-template)**
 
 ---
 
@@ -42,6 +37,13 @@ Die Anwendung wird automatisch über **Vercel** gehostet und deployed.
 *   **URL:** [https://testshop-dusky.vercel.app/](https://testshop-dusky.vercel.app/)
 *   **Workflow:** Jeder Push auf den `main` Branch in diesem Repository löst ein neues Deployment auf Vercel aus.
 *   **Technologie:** Next.js Edge Network. Dies stellt sicher, dass die Anwendung für Tests hochverfügbar und performant ist, ohne dass lokale Server gestartet werden müssen (siehe "Pfad 2").
+
+
+### Ressourcen für Test-Consultants
+Die E2E-Automatisierung wird in dedizierten Repositories verwaltet. Templates mit verschiedenen Test-Frameworks sind verfügbar:
+
+👉 **[Playwright Framework Template](https://github.com/bqnow/testshop-playwright-template)**
+
 
 ---
 
