@@ -7,16 +7,27 @@ COPY . .
 RUN npm run build
 
 # --- STAGE 2: Runner ---
+# --- STAGE 2: Runner ---
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
+ENV PORT=3000
 
+# Don't run as root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy public assets
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+
+# Copy standalone build (includes unnecessary node_modules)
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+# Next.js standalone Output creates a server.js
+CMD ["node", "server.js"]

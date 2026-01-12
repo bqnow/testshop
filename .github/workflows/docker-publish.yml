@@ -14,7 +14,19 @@ env:
   IMAGE_NAME: bqnow/testshop
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+
   build-and-push:
+    needs: lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -49,3 +61,12 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Trigger E2E Tests in Template Repo
+        if: github.ref == 'refs/heads/main' # Only trigger on main branch updates
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GH_PAT_TRIGGER }}
+          repository: bqnow/testshop-playwright-template
+          event-type: app-update
+          client-payload: '{"image_tag": "latest"}'
