@@ -77,4 +77,9 @@ jobs:
           token: ${{ secrets.GH_PAT_TRIGGER }}
           repository: bqnow/testshop-playwright-template
           event-type: app-update
-          client-payload: '{"image_tag": "latest"}'
+          client-payload: |
+            {
+              "image_tag": "latest",
+              "environment": "staging",
+              "base_url": "https://testshop-dusky.vercel.app"
+            }
