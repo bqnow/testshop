@@ -12,24 +12,6 @@ Das Projekt folgt strikt dem **"Target & Template" Ansatz**. Die Applikation (Ta
 
 ---
 
-## 🎯 Schulungsprojekt: Test-Szenarien
-
-Ziel ist die vollständige Automatisierung des Bestellprozesses unter Einhaltung professioneller Standards (POM, Data-Driven).
-
-### Szenario 1: Happy Path (Standard-Bestellung)
-1.  **Login:** Erfolgreiche Anmeldung mit dem User `consultant` und Passwort `pwd`.
-2.  **Produktsuche:** Suche nach einem beliebigen Produkt (z.B. "Watch") und Filterung nach einer Kategorie.
-3.  **Warenkorb:** Hinzufügen des Produkts zum Warenkorb.
-4.  **Validierung:** Erhöhung der Anzahl auf `2` im Warenkorb und Verifizierung, dass sich der Gesamtpreis korrekt verdoppelt hat.
-5.  **Checkout:** Eingabe valider Versanddaten und erfolgreicher Abschluss der Bestellung (Bestätigungsseite).
-
-### Szenario 2: Edge Case (Fehlerbehandlung)
-1.  **Produkt-ID 999:** Direkter Aufruf oder Hinzufügen des Produkts mit der ID `999` (simuliert einen fehlerhaften Artikel).
-2.  **Fehlerprüfung:** Die Applikation muss eine Fehlermeldung anzeigen (z.B. "Internal Server Error" oder "Produkt nicht verfügbar").
-3.  **Stabilität:** Verifizierung, dass die Applikation nicht abstürzt (White Screen of Death) und der User zurück zur Startseite navigieren kann.
-
----
-
 ## ☁️ Deployment & Hosting
 
 Die Anwendung wird automatisch über **Vercel** gehostet und deployed.
