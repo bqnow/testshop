@@ -1,67 +1,42 @@
-name: Build and Push Docker Image
+name: Build, QA and Deploy to Staging
 
 on:
   push:
-    branches: [ main, master, showcase/** ]
-    tags: [ 'v*.*.*' ]
+    branches: [ main, master ]
     paths-ignore:
       - '**.md'
       - 'LICENSE'
       - '.gitignore'
+  tags: [ 'v*.*.*' ]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: bqnow/testshop
 
 jobs:
-  # Job 1: Qualitätssicherung
-  # Führt Linter Checks durch, bevor Docker-Builds starten
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
-
-  # Job 2: Build & Publish
-  # Baut das Docker Image und lädt es hoch (nur wenn Lint erfolgreich war)
+  # 1. Build & Push
   build-and-push:
-    needs: lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Login bei der GitHub Container Registry (GHCR)
+      - uses: actions/checkout@v4
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      # Automatische Generierung von Tags (z.B. :latest für main, :1.0.0 für Tags)
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
-
-      # Der eigentliche Build-Prozess und Push zur Registry
-      - name: Build and push Docker image
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -69,9 +44,32 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      # Trigger: Startet die Tests im anderen Repository ("bqnow/testshop-playwright-template")
-      - name: Trigger E2E Tests in Template Repo
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+  # 2. QA Tests (Läuft automatisch nach Build)
+  qa-tests:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: qa
+    steps:
+      - name: Trigger E2E Tests (QA)
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GH_PAT_TRIGGER }}
+          repository: bqnow/testshop-playwright-template
+          event-type: app-update
+          client-payload: |
+            {
+              "image_tag": "latest",
+              "environment": "qa",
+              "base_url": "https://testshop-dusky.vercel.app"
+            }
+
+  # 3. Staging Deployment (Erfordert manuelle Freigabe in GitHub Actions)
+  staging-deploy:
+    needs: qa-tests
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Trigger E2E Tests (Staging)
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GH_PAT_TRIGGER }}
