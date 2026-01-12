@@ -1,4 +1,4 @@
-# Build, Test and Deploy (Single Environment) - Trigger Run
+name: Build, Test and Deploy (Gated Pipeline)
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
   IMAGE_NAME: bqnow/testshop
 
 jobs:
-  # 1. Build: Baut das Docker-Image für das Playwright-Template
+  # 1. Build: Baut das Docker-Image für die Applikation (Shop)
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -61,6 +61,14 @@ jobs:
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: docker compose up --build --exit-code-from playwright
 
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: reporting/
+          retention-days: 7
+
   # 3. Deploy: Erst wenn Tests grün (oder übersprungen) sind, wird zu Vercel gepusht
   deploy:
     needs: test
@@ -74,5 +82,5 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod' # Deployt auf die einzige Live-Umgebung
+          vercel-args: '--prod'
           working-directory: ./

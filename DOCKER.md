@@ -39,7 +39,19 @@ Um die Effizienz zu maximieren, nutzt dieses Projekt ein **Multi-Stage Dockerfil
 
 ---
 
-## 4. Weiterführende Informationen
+## 4. CI/CD Integration: Der "Gated" Workflow
+
+In der professionellen Entwicklung dient Docker als Brücke zwischen Code und Deployment:
+
+1.  **Build:** Das Image wird basierend auf dem aktuellen Code-Stand gebaut.
+2.  **Verify (The Gate):** Bevor ein Deployment zu Vercel erfolgt, wird das Image lokal in der CI gestartet. Das separate Playwright-Projekt führt seine Tests gegen diesen Container aus.
+3.  **Deploy:** Nur wenn alle Tests "grün" sind, wird die Anwendung auf der Live-Umgebung (Vercel) aktualisiert.
+
+Dies stellt sicher, dass keine fehlerhaften Versionen die Produktion erreichen.
+
+---
+
+## 5. Weiterführende Informationen
 
 Details zur Test-Automatisierung, dem Reporting und der Ausführung von Playwright-Tests finden sich im Framework-Template:
 👉 **[Playwright Framework Template Repository](https://github.com/bqnow/testshop-playwright-template)**

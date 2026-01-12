@@ -19,13 +19,13 @@ Die Anwendung wird automatisch über **Vercel** gehostet und deployed.
 *   **URL:** [https://testshop-dusky.vercel.app/](https://testshop-dusky.vercel.app/)
 *   **Workflow:** Jeder Push auf den `main` Branch in diesem Repository löst ein neues Deployment auf Vercel aus.
 *   **Technologie:** Next.js Edge Network. Dies stellt sicher, dass die Anwendung für Tests hochverfügbar und performant ist, ohne dass lokale Server gestartet werden müssen (siehe "Pfad 2").
+*   **Pipeline-Steuerung:** Über die GitHub-Variable `SKIP_E2E` (Werte: `true` / `false`) kann die E2E-Validierung in der Pipeline temporär deaktiviert werden (z.B. bei reinen Dokumentations-Änderungen).
 
 
 ### Ressourcen für Test-Consultants
 Die E2E-Automatisierung wird in dedizierten Repositories verwaltet. Templates mit verschiedenen Test-Frameworks sind verfügbar:
 
 👉 **[Playwright Framework Template](https://github.com/bqnow/testshop-playwright-template)**
-
 
 ---
 

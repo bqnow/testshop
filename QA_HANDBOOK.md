@@ -111,6 +111,6 @@ Automatisierung der Qualitätssicherung durch CI/CD-Systeme.
 4.  **Artifacts:** Speicherung von Beweismaterial (Screenshots, Traces) bei Fehlern.
 
 ### Verantwortlichkeit in der QS
-In einer CD-Welt fungiert die Qualitätssicherung als **Gatekeeper**. Stabile und aussagekräftige Tests sind die Voraussetzung für eine schnelle und sichere Release-Frequenz.
+In einer CD-Welt fungiert die Qualitätssicherung als **Gatekeeper**. Durch unsere **Gated Pipeline** (Build -> Test -> Deploy) sind stabile und aussagekräftige Tests die zwingende Voraussetzung für jedes Live-Release.
 
 ---
