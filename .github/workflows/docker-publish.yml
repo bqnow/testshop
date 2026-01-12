@@ -3,11 +3,11 @@ name: Build, QA and Deploy to Staging
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*.*.*' ]
     paths-ignore:
       - '**.md'
       - 'LICENSE'
       - '.gitignore'
-  tags: [ 'v*.*.*' ]
 
 env:
   REGISTRY: ghcr.io
