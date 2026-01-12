@@ -9,18 +9,18 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className = '', variant = 'primary', size = 'md', isLoading, children, ...props }, ref) => {
 
-        // Base styles mapping
+        // Mapping der Basis-Styles
         const variants = {
             primary: 'btn-primary',
             outline: 'btn-outline',
-            ghost: 'btn-ghost' // We might need to add this to git globals or just leave as is
+            ghost: 'btn-ghost' // Eventuell später zu globals.css hinzufügen
         };
 
 
 
-        // Improved style composition: reusing existing globals.css classes
-        // Note: In a real app we might move fully to CSS modules or Tailwind here.
-        // Given we are using Vanilla CSS with global classes:
+        // Optimierte Style-Zusammensetzung: Verwendet existierende globals.css Klassen
+        // Hinweis: In einer echten App würde man hier ggf. CSS Modules oder Tailwind nutzen.
+        // Für dieses Projekt nutzen wir Vanilla CSS mit globalen Klassen:
         const variantClass = variants[variant];
         const sizeStyle = size === 'sm' ? { fontSize: '0.9rem', padding: '0.4rem 0.8rem' } :
             size === 'lg' ? { fontSize: '1.1rem', padding: '1rem 2rem' } : {};

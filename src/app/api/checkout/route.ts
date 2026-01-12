@@ -4,7 +4,7 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        // Tiny validations for testing purposes
+        // Einfache Validierung für Testzwecke
         if (!body.cart || !Array.isArray(body.cart) || body.cart.length === 0) {
             return NextResponse.json(
                 { success: false, message: "Cart is empty" },
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // Mock processing success
+        // Simuliere erfolgreiche Verarbeitung (Mock)
         return NextResponse.json({
             success: true,
             orderId: `ORDER-${Date.now()}`,

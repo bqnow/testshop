@@ -72,7 +72,7 @@ export default function CartPage() {
     };
 
     if (orderSuccess) {
-        // ... (existing success view)
+        // ... (Anzeige für erfolgreiche Bestellung)
         return (
             <div style={{ textAlign: 'center', padding: '4rem 0' }}>
                 <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
@@ -90,7 +90,7 @@ export default function CartPage() {
     }
 
     if (cart.length === 0) {
-        // ... (existing empty cart view)
+        // ... (Anzeige für leeren Warenkorb)
         return (
             <div style={{ textAlign: 'center', padding: '4rem 0' }}>
                 <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Your Cart is Empty</h1>

@@ -14,7 +14,7 @@ export type CartItem = Product & {
 export type User = {
     id: number;
     username: string;
-    password?: string; // Optional because we might not want to expose it in UI types
+    password?: string; // Optional, da wir es evtl. nicht in UI-Typen anzeigen wollen
 };
 
 export type ApiResponse<T> = {

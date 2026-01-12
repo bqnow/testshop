@@ -5,7 +5,7 @@ import { ApiResponse, CartItem, ShippingDetails } from '@/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function loginUser(prevState: any, formData: FormData): Promise<ApiResponse<{ token: string; user: { id: number; username: string } }>> {
-    // Simulate network delay
+    // Simuliere Netzwerk-Verzögerung
     await new Promise(resolve => setTimeout(resolve, 500));
 
     const username = formData.get('username') as string;
@@ -30,20 +30,20 @@ export async function loginUser(prevState: any, formData: FormData): Promise<Api
 }
 
 export async function checkoutCart(cart: CartItem[], shippingDetails: ShippingDetails): Promise<ApiResponse<{ orderId: string }>> {
-    // Simulate processing
+    // Simuliere Verarbeitungsschritt
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     if (!cart || cart.length === 0) {
         return { success: false, message: "Cart is empty" };
     }
 
-    // Simulate "Buggy" Product Scenario
+    // Simuliere das "Buggy Product" Szenario (ID 999)
     const hasBuggyProduct = cart.some(item => item.id === 999);
     if (hasBuggyProduct) {
         return { success: false, message: "Internal Server Error: processing failed for item 999." };
     }
 
-    // Validate Shipping Details (Server-Side)
+    // Validiere Versanddetails (Server-seitig)
     if (!shippingDetails.fullName || shippingDetails.fullName.length < 3) {
         return { success: false, message: "Invalid Full Name (min 3 chars)" };
     }

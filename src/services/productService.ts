@@ -17,7 +17,7 @@ export type GetAllParams = {
 
 export const productService = {
     getAll: async ({ page = 1, limit = 9, query = '', category = '' }: GetAllParams = {}): Promise<PaginatedResponse<Product>> => {
-        // Simulate DB delay
+        // Simuliere Datenbank-Verzögerung
         await new Promise(resolve => setTimeout(resolve, 50));
 
         let filtered = products;
