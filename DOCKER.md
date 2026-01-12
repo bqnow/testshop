@@ -32,10 +32,10 @@ Das fertige Image wird bei jedem Release in der **GitHub Container Registry** hi
 
 Um die Effizienz zu maximieren, nutzt dieses Projekt ein **Multi-Stage Dockerfile**. Dies trennt den Build-Prozess strikt von der Laufzeitumgebung:
 
-1.  **Stage 1 (Building):** In einer schweren Umgebung werden Abhängigkeiten installiert und der Quellcode in optimiertes JavaScript übersetzt.
-2.  **Stage 2 (Running):** Nur die für den Betrieb notwendigen Dateien (Produktions-Artefakte) werden in ein minimales, abgesichertes Basis-Image (`Alpine Linux`) kopiert.
+1.  **Stage 1 (Building):** In einer schweren Umgebung werden Abhängigkeiten installiert und der Quellcode in optimiertes JavaScript übersetzt. Hierbei wird der **Next.js Standalone Mode** genutzt, der automatisch nur die wirklich benötigten Dateien isoliert.
+2.  **Stage 2 (Running):** Nur die minimalen Standalone-Dateien werden in ein abgesichertes Basis-Image (`Alpine Linux`) kopiert. Zudem wird ein **dedizierter Non-Root User** (Next.js) für den Start genutzt, was die Sicherheit massiv erhöht.
 
-**Ergebnis:** Ein hochperformantes, kleines und sicheres Image, das optimal für automatisierte Test-Pipelines geeignet ist.
+**Ergebnis:** Ein extrem kleines (ca. 100MB statt 1GB) und sicheres Image. Perfekt für schnelle Downloads in Schulungs-Umgebungen.
 
 ---
 
