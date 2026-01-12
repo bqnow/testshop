@@ -55,7 +55,7 @@ jobs:
 
       - name: Run E2E Tests
         env:
-          BASE_URL: https://testshop-dusky.vercel.app
+          BASE_URL: http://app:3000
           SHOP_IMAGE_TAG: latest
           TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
