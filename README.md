@@ -1,5 +1,7 @@
 # TestShop - E-Commerce Target Application 🚀
 
+> 🌍 **Live Demo:** [https://testshop-dusky.vercel.app/](https://testshop-dusky.vercel.app/)
+
 Diese Next.js Applikation dient als moderne E-Commerce Plattform für Schulungszwecke in der Testautomatisierung und CI/CD-Orchestrierung.
 
 ---
@@ -21,15 +23,25 @@ Ziel ist die vollständige Automatisierung des Bestellprozesses unter Einhaltung
 
 ### Szenario 1: Happy Path (Standard-Bestellung)
 1.  **Login:** Erfolgreiche Anmeldung mit dem User `consultant` und Passwort `pwd`.
-2.  **Produktsuche:** Suche nach einem Produkt (z.B. "Watch") inklusive Filterung nach Kategorien.
+2.  **Produktsuche:** Suche nach einem beliebigen Produkt (z.B. "Watch") und Filterung nach einer Kategorie.
 3.  **Warenkorb:** Hinzufügen des Produkts zum Warenkorb.
-4.  **Validierung:** Erhöhung der Anzahl auf 2 und Verifizierung der korrekten Preisaktualisierung.
-5.  **Checkout:** Eingabe der Versanddaten und erfolgreicher Abschluss der Bestellung.
+4.  **Validierung:** Erhöhung der Anzahl auf `2` im Warenkorb und Verifizierung, dass sich der Gesamtpreis korrekt verdoppelt hat.
+5.  **Checkout:** Eingabe valider Versanddaten und erfolgreicher Abschluss der Bestellung (Bestätigungsseite).
 
 ### Szenario 2: Edge Case (Fehlerbehandlung)
-1.  **Produkt-ID 999:** Hinzufügen des Produkts mit der ID `999` zum Warenkorb.
-2.  **Fehlerprüfung:** Beim Versuch der Bestellung muss eine entsprechende Fehlermeldung (Server Error) angezeigt werden.
-3.  **Stabilität:** Verifizierung, dass der Fehler korrekt abgefangen wird, ohne dass die Applikation instabil wird.
+1.  **Produkt-ID 999:** Direkter Aufruf oder Hinzufügen des Produkts mit der ID `999` (simuliert einen fehlerhaften Artikel).
+2.  **Fehlerprüfung:** Die Applikation muss eine Fehlermeldung anzeigen (z.B. "Internal Server Error" oder "Produkt nicht verfügbar").
+3.  **Stabilität:** Verifizierung, dass die Applikation nicht abstürzt (White Screen of Death) und der User zurück zur Startseite navigieren kann.
+
+---
+
+## ☁️ Deployment & Hosting
+
+Die Anwendung wird automatisch über **Vercel** gehostet und deployed.
+
+*   **URL:** [https://testshop-dusky.vercel.app/](https://testshop-dusky.vercel.app/)
+*   **Workflow:** Jeder Push auf den `main` Branch in diesem Repository löst ein neues Deployment auf Vercel aus.
+*   **Technologie:** Next.js Edge Network. Dies stellt sicher, dass die Anwendung für Tests hochverfügbar und performant ist, ohne dass lokale Server gestartet werden müssen (siehe "Pfad 2").
 
 ---
 
