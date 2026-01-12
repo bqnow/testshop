@@ -1,9 +1,8 @@
-name: Build, QA and Deploy to Staging
+name: Build, Test and Deploy (Single Environment)
 
 on:
   push:
     branches: [ main, master ]
-    tags: [ 'v*.*.*' ]
     paths-ignore:
       - '**.md'
       - 'LICENSE'
@@ -14,8 +13,8 @@ env:
   IMAGE_NAME: bqnow/testshop
 
 jobs:
-  # 1. Build & Push
-  build-and-push:
+  # 1. Build: Baut das Docker-Image für das Playwright-Template
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,27 +27,18 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-  # 2. QA Tests (Laufen jetzt synchron in dieser Pipeline)
-  qa-tests:
-    needs: build-and-push
+  # 2. Test: Führt E2E-Tests aus (Überspringbar via GitHub Variable SKIP_E2E)
+  test:
+    needs: build
+    if: vars.SKIP_E2E != 'true'
     runs-on: ubuntu-latest
-    environment: qa
     steps:
       - name: Checkout E2E Framework
         uses: actions/checkout@v4
@@ -63,39 +53,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run E2E Tests (QA)
+      - name: Run E2E Tests
         env:
           BASE_URL: https://testshop-dusky.vercel.app
-          TEST_ENV: qa
           SHOP_IMAGE_TAG: latest
           TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: docker compose up --build --exit-code-from playwright
 
-  # 3. Staging Deployment & Tests (Erfordert manuelle Freigabe)
-  staging-tests:
-    needs: qa-tests
+  # 3. Deploy: Erst wenn Tests grün (oder übersprungen) sind, wird zu Vercel gepusht
+  deploy:
+    needs: test
+    if: always() && (needs.test.result == 'success' || needs.test.result == 'skipped')
     runs-on: ubuntu-latest
-    environment: staging
     steps:
-      - name: Checkout E2E Framework
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v20
         with:
-          repository: bqnow/testshop-playwright-template
-          token: ${{ secrets.GH_PAT_TRIGGER }}
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run E2E Tests (Staging)
-        env:
-          BASE_URL: https://testshop-dusky.vercel.app
-          TEST_ENV: staging
-          SHOP_IMAGE_TAG: latest
-          TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
-          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: docker compose up --build --exit-code-from playwright
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod' # Deployt auf die einzige Live-Umgebung
+          working-directory: ./
