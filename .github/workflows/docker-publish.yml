@@ -15,7 +15,7 @@ env:
 
 jobs:
   # Job 1: Qualitätssicherung
-  # Führt Linter Checks durch, bevor teure Docker-Builds starten
+  # Führt Linter Checks durch, bevor Docker-Builds starten
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +71,7 @@ jobs:
 
       # Trigger: Startet die Tests im anderen Repository ("bqnow/testshop-playwright-template")
       - name: Trigger E2E Tests in Template Repo
-        if: github.ref == 'refs/heads/main' # Nur bei Updates auf dem Haupt-Branch
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GH_PAT_TRIGGER }}
