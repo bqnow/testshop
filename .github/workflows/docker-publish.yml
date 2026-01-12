@@ -14,6 +14,8 @@ env:
   IMAGE_NAME: bqnow/testshop
 
 jobs:
+  # Job 1: Qualitätssicherung
+  # Führt Linter Checks durch, bevor teure Docker-Builds starten
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -25,6 +27,8 @@ jobs:
       - run: npm ci
       - run: npm run lint
 
+  # Job 2: Build & Publish
+  # Baut das Docker Image und lädt es hoch (nur wenn Lint erfolgreich war)
   build-and-push:
     needs: lint
     runs-on: ubuntu-latest
@@ -36,6 +40,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Login bei der GitHub Container Registry (GHCR)
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -43,6 +48,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Automatische Generierung von Tags (z.B. :latest für main, :1.0.0 für Tags)
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
@@ -54,6 +60,7 @@ jobs:
             type=semver,pattern={{version}}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
 
+      # Der eigentliche Build-Prozess und Push zur Registry
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -62,8 +69,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      # Trigger: Startet die Tests im anderen Repository ("bqnow/testshop-playwright-template")
       - name: Trigger E2E Tests in Template Repo
-        if: github.ref == 'refs/heads/main' # Only trigger on main branch updates
+        if: github.ref == 'refs/heads/main' # Nur bei Updates auf dem Haupt-Branch
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GH_PAT_TRIGGER }}
