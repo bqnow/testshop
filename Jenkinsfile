@@ -32,11 +32,19 @@ pipeline {
 
         // 3. Tests ausführen
         stage('Run E2E Tests') {
+            environment {
+                GRAFANA_LOKI_URL = credentials('GRAFANA_LOKI_URL')
+                GRAFANA_LOKI_USER = credentials('GRAFANA_LOKI_USER')
+                GRAFANA_LOKI_KEY = credentials('GRAFANA_LOKI_KEY')
+                TEST_USER_NAME = 'consultant' // Fallback oder auch als Credential
+                TEST_USER_PASSWORD = 'pwd'
+            }
             steps {
                 dir('e2e-tests') {
                     echo "🚀 Running Tests in Docker..."
-                    // Startet die Tests in Docker (nutzt das Image aus Stage 1)
-                    // --exit-code-from maven sorgt dafür, dass die Pipeline fehlschlägt, wenn Tests rot sind
+                    // Startet die Tests in Docker
+                    // Variablen aus dem environment Block werden automatisch an sh weitergereicht
+                    // und docker compose übernimmt sie, weil sie im docker-compose.yml definiert sind.
                     sh "docker compose up --exit-code-from maven"
                 }
             }
