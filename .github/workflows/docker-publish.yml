@@ -43,7 +43,7 @@ jobs:
       - name: Checkout E2E Framework
         uses: actions/checkout@v4
         with:
-          repository: bqnow/testshop-playwright-template
+          repository: bqnow/testshop-playwright-typescript-template
           token: ${{ secrets.GH_PAT_TRIGGER }}
       
       - name: Log in to GitHub Container Registry
@@ -57,8 +57,12 @@ jobs:
         env:
           BASE_URL: http://app:3000
           SHOP_IMAGE_TAG: latest
+          TEST_ENV: ci_gated_pipeline
           TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          GRAFANA_LOKI_URL: ${{ secrets.GRAFANA_LOKI_URL }}
+          GRAFANA_LOKI_USER: ${{ secrets.GRAFANA_LOKI_USER }}
+          GRAFANA_LOKI_KEY: ${{ secrets.GRAFANA_LOKI_KEY }}
         run: docker compose up --build --exit-code-from playwright
 
       - name: Upload Playwright Report

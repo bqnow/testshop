@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../testshop-playwright-typescript-template"
+		},
+		{
+			"path": "../testshop-playwright-java-template"
+		}
+	],
+	"settings": {}
+}

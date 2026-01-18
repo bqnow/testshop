@@ -9,6 +9,7 @@ import { checkoutCart } from '@/app/actions';
 import { useAuth } from '@/context/AuthContext';
 import { ShippingDetails } from '@/types';
 import { ROUTES } from '@/lib/routes';
+import { trackCheckoutStarted, trackOrderCompleted, trackOrderFailed } from '@/lib/analytics';
 
 export default function CartPage() {
     const { cart, removeFromCart, updateQuantity, clearCart, total } = useCart();
@@ -54,17 +55,21 @@ export default function CartPage() {
     const handleCheckoutSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setCheckingOut(true);
+        trackCheckoutStarted(finalTotal, cart.length);
         try {
             const res = await checkoutCart(cart, shippingDetails);
 
             if (res.success && res.data) {
+                trackOrderCompleted(res.data.orderId, finalTotal, cart.length);
                 setOrderSuccess(res.data.orderId);
                 clearCart();
             } else {
+                trackOrderFailed(res.message || 'Unknown error', finalTotal);
                 alert('Checkout failed: ' + res.message);
             }
         } catch (error) {
             console.error(error);
+            trackOrderFailed('Exception occurred', finalTotal);
             alert('Checkout error');
         } finally {
             setCheckingOut(false);

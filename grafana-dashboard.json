@@ -1,0 +1,333 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "links": [],
+    "panels": [
+        {
+            "datasource": {
+                "type": "grafana-cloud-logs",
+                "uid": "grafanacloud-bqnow-logs"
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 6,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.4.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-cloud-logs",
+                        "uid": "grafanacloud-bqnow-logs"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(last_over_time({app=~\"$project\", environment=~\"$environment\", kind=\"test_summary\"} | json | unwrap total [$__range]))",
+                    "refId": "A"
+                }
+            ],
+            "title": "📊 Total Tests (All Apps)",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-cloud-logs",
+                "uid": "grafanacloud-bqnow-logs"
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 6,
+                "x": 6,
+                "y": 0
+            },
+            "id": 2,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.4.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-cloud-logs",
+                        "uid": "grafanacloud-bqnow-logs"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(last_over_time({app=~\"$project\", environment=~\"$environment\", kind=\"test_summary\"} | json | unwrap passed [$__range]))",
+                    "refId": "A"
+                }
+            ],
+            "title": "✅ Passed (All Apps)",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-cloud-logs",
+                "uid": "grafanacloud-bqnow-logs"
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 6,
+                "x": 12,
+                "y": 0
+            },
+            "id": 3,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.4.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-cloud-logs",
+                        "uid": "grafanacloud-bqnow-logs"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(last_over_time({app=~\"$project\", environment=~\"$environment\", kind=\"test_summary\"} | json | unwrap failed [$__range]))",
+                    "refId": "A"
+                }
+            ],
+            "title": "❌ Failed (All Apps)",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-cloud-logs",
+                "uid": "grafanacloud-bqnow-logs"
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 6,
+                "x": 18,
+                "y": 0
+            },
+            "id": 4,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.4.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-cloud-logs",
+                        "uid": "grafanacloud-bqnow-logs"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum(last_over_time({app=~\"$project\", environment=~\"$environment\", kind=\"test_summary\"} | json | unwrap skipped [$__range]))",
+                    "refId": "A"
+                }
+            ],
+            "title": "⚠️ Skipped (All Apps)",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-cloud-logs",
+                "uid": "grafanacloud-bqnow-logs"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 3
+            },
+            "id": 5,
+            "options": {
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "wrapFields": true
+            },
+            "pluginVersion": "11.4.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-cloud-logs",
+                        "uid": "grafanacloud-bqnow-logs"
+                    },
+                    "editorMode": "code",
+                    "expr": "sum by (app) (sum_over_time({app=~\"$project\", environment=~\"$environment\", kind=\"test_summary\"} | json | unwrap passed [$__range]))",
+                    "legendFormat": "{{app}}",
+                    "refId": "A"
+                }
+            ],
+            "title": "🔍 Tests Passed per Project",
+            "type": "bargauge"
+        },
+        {
+            "datasource": {
+                "type": "grafana-cloud-logs",
+                "uid": "grafanacloud-bqnow-logs"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 11
+            },
+            "id": 6,
+            "options": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": true
+            },
+            "pluginVersion": "11.4.0",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-cloud-logs",
+                        "uid": "grafanacloud-bqnow-logs"
+                    },
+                    "editorMode": "code",
+                    "expr": "count_over_time({app=~\"$project\", environment=~\"$environment\", kind=\"test_result\", status=\"failed\"} [$__interval])",
+                    "legendFormat": "{{test_name}}",
+                    "refId": "A"
+                }
+            ],
+            "title": "🛑 Recently Failed Tests List",
+            "type": "timeseries"
+        }
+    ],
+    "refresh": "5s",
+    "schemaVersion": 39,
+    "tags": [],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "text": "All",
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": {
+                    "type": "grafana-cloud-logs",
+                    "uid": "grafanacloud-bqnow-logs"
+                },
+                "definition": "",
+                "includeAll": true,
+                "label": "Project",
+                "multi": true,
+                "name": "project",
+                "options": [],
+                "query": {
+                    "label": "app",
+                    "refId": "LokiVariableQueryEditor-VariableQuery",
+                    "stream": "",
+                    "type": 1
+                },
+                "refresh": 1,
+                "regex": "",
+                "regexApplyTo": "value",
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "text": "All",
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": {
+                    "type": "grafana-cloud-logs",
+                    "uid": "grafanacloud-bqnow-logs"
+                },
+                "definition": "",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "label": "environment",
+                    "refId": "LokiVariableQueryEditor-VariableQuery",
+                    "stream": "",
+                    "type": 1
+                },
+                "refresh": 1,
+                "regex": "",
+                "regexApplyTo": "value",
+                "sort": 1,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-24h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "browser",
+    "title": "TestShop Clean Status",
+    "uid": "testshop-clean-status",
+    "version": 1,
+    "weekStart": ""
+}
