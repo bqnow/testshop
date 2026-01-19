@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../testshop-playwright-java-template"
+		},
+		{
+			"path": "../jenkins-setup"
 		}
 	],
 	"settings": {}
