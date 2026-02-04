@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { productService } from '@/services/productService';
 
-// CI Trigger: Force run with real code change to test JMeter integration
+// CI Trigger: Force run with real co - take 2de change to test JMeter integration
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
