@@ -78,9 +78,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Shop App (for Docker Compose)
-        uses: actions/checkout@v4
-
       - name: Checkout JMeter Framework
         uses: actions/checkout@v4
         with:
@@ -96,24 +93,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Start Shop App
-        run: |
-          docker compose up -d
-          # Warten bis die App gesund ist (siehe healthcheck in compose)
-          timeout 60s bash -c 'until [ "$(docker inspect -f {{.State.Health.Status}} testshop-app-1)" == "healthy" ]; do sleep 2; done'
-
       - name: Run JMeter Tests
+        env:
+          SHOP_IMAGE: ghcr.io/${{ env.IMAGE_NAME }}:latest
         run: |
-          chmod +x jmeter-tests/scripts/run_test.sh
-          # Wir führen JMeter in einem Docker-Container aus, damit wir keine Java/JMeter Installation auf dem Runner brauchen
-          docker run --rm \
-            --network host \
-            -v ${{ github.workspace }}/jmeter-tests:/tests \
-            justb4/jmeter:5.6.3 \
-            -n -t /tests/jmx/smoketestjmx.jmx \
-            -l /tests/results/result.jtl \
-            -e -o /tests/results/report \
-            -JHOST=localhost -JPORT=3000
+          cd jmeter-tests
+          docker compose -f docker-compose.ci.yml up --exit-code-from jmeter
 
       - name: Upload JMeter Report
         uses: actions/upload-artifact@v4
