@@ -100,7 +100,7 @@ jobs:
         run: |
           docker compose up -d
           # Warten bis die App gesund ist (siehe healthcheck in compose)
-          timeout 60s bash -c 'until [ "$(docker inspect -f {{.State.Health.Status}} bqnow-testapp-app-1)" == "healthy" ]; do sleep 2; done'
+          timeout 60s bash -c 'until [ "$(docker inspect -f {{.State.Health.Status}} testshop-app-1)" == "healthy" ]; do sleep 2; done'
 
       - name: Run JMeter Tests
         run: |
