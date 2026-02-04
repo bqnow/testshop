@@ -1,4 +1,5 @@
 # TestShop - E-Commerce Target Application 🚀
+<!-- CI Trigger: Standardized JMeter CI setup -->
 
 Diese Next.js Applikation dient als moderne E-Commerce Plattform für Schulungszwecke in der Testautomatisierung und CI/CD-Orchestrierung.
 
