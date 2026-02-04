@@ -12,6 +12,15 @@ export async function POST(request: Request) {
             );
         }
 
+        // Simuliere das "Buggy Product" Szenario (ID 999)
+        const hasBuggyProduct = body.cart.some((item: any) => item.id === 999);
+        if (hasBuggyProduct) {
+            return NextResponse.json(
+                { success: false, message: "Internal Server Error: processing failed for item 999." },
+                { status: 500 }
+            );
+        }
+
         // Simuliere erfolgreiche Verarbeitung (Mock)
         return NextResponse.json({
             success: true,
