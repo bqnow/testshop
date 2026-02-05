@@ -60,6 +60,7 @@ jobs:
           TEST_ENV: ci_gated_pipeline
           TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          CHROMIUM_FLAGS: --disable-features=AutoupgradeMixedContent,--no-first-run,--disable-background-networking
           GRAFANA_LOKI_URL: ${{ secrets.GRAFANA_LOKI_URL }}
           GRAFANA_LOKI_USER: ${{ secrets.GRAFANA_LOKI_USER }}
           GRAFANA_LOKI_KEY: ${{ secrets.GRAFANA_LOKI_KEY }}
