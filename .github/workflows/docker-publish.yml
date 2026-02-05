@@ -84,7 +84,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Start App
-        run: docker compose up -d app wait
+        run: docker compose up -d --wait app
 
       - name: Run JMeter
         run: |
