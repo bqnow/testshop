@@ -74,6 +74,32 @@ jobs:
           path: reporting/
           retention-days: 7
 
+  # 3. Performance Test: JMeter Smoke Test
+  performance-test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Start App
+        run: docker compose up -d app wait
+
+      - name: Run JMeter
+        run: |
+          docker run --network host \
+          -v ${{ github.workspace }}/tests/performance:/tests \
+          -w /tests \
+          justb4/jmeter \
+          -n -t smoketest.jmx -JHOST=localhost -JPORT=3000
+
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-results
+          path: tests/performance/jmeter.log
+
   # 3. Deploy: Erst wenn Tests grün (oder übersprungen) sind, wird zu Vercel gepusht
   deploy:
     needs: test
