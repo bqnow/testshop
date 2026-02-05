@@ -75,8 +75,9 @@ jobs:
           retention-days: 7
 
   # 3. Performance Test: JMeter Smoke Test
+  # 3. Performance Test: JMeter Smoke Test (Läuft nach E2E Tests)
   performance-test:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -100,10 +101,10 @@ jobs:
           name: jmeter-results
           path: tests/performance/jmeter.log
 
-  # 3. Deploy: Erst wenn Tests grün (oder übersprungen) sind, wird zu Vercel gepusht
+  # 4. Deploy: Erst wenn Performance-Tests auch grün sind
   deploy:
-    needs: test
-    if: always() && (needs.test.result == 'success' || needs.test.result == 'skipped')
+    needs: performance-test
+    if: always() && (needs.performance-test.result == 'success' || needs.performance-test.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
