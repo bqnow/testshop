@@ -79,3 +79,4 @@ Nur für Nutzer vorgesehen, die **direkte Änderungen am Quellcode** des Webshop
 *   **Node.js (LTS)**
 *   **Git**
 *   **Docker Desktop** (optional für Container-Tests)
+# Test Playwright v1.58.1 fix
