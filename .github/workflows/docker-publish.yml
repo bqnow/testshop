@@ -55,7 +55,7 @@ jobs:
 
       - name: Run E2E Tests
         env:
-          BASE_URL: http://app:3000
+          BASE_URL: http://shop:3000
           SHOP_IMAGE_TAG: latest
           TEST_ENV: ci_gated_pipeline
           TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
