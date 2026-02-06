@@ -74,7 +74,6 @@ jobs:
           path: reporting/
           retention-days: 7
 
-  # 3. Performance Test: JMeter Smoke Test
   # 3. Performance Test: JMeter Smoke Test (Läuft nach E2E Tests)
   performance-test:
     needs: test
@@ -92,14 +91,18 @@ jobs:
           -v ${{ github.workspace }}/tests/performance:/tests \
           -w /tests \
           justb4/jmeter \
-          -n -t smoketest.jmx -JHOST=localhost -JPORT=3000
+          -n -t smoketest.jmx -JHOST=localhost -JPORT=3000 \
+          -l result.jtl -e -o report-dashboard
 
       - name: Upload Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jmeter-results
-          path: tests/performance/jmeter.log
+          name: jmeter-report
+          path: |
+            tests/performance/jmeter.log
+            tests/performance/result.jtl
+            tests/performance/report-dashboard/
 
   # 4. Deploy: Erst wenn Performance-Tests auch grün sind
   deploy:
